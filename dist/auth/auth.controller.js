@@ -23,10 +23,10 @@ let AuthController = class AuthController {
         this.authService = authService;
     }
     async signup(signupDto) {
-        return this.authService.signup();
+        return this.authService.signup(signupDto);
     }
     async login(loginDto) {
-        return this.authService.login();
+        return this.authService.login(loginDto);
     }
 };
 exports.AuthController = AuthController;

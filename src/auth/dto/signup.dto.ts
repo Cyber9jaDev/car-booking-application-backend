@@ -36,12 +36,12 @@ export class SignupDto {
     example: '1000000001',
     required: true,
   })
-  @Matches(/^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/, {
-    message: 'Phone must be a valid phone number',
+  @Matches(/^0\d{10}$/, {
+    message: 'Phone number must be 11 digits and start with 0',
   })
   phone: string;
 
-  @ApiProperty({ enum: Role, example: Role.PASSENGER, required: true })
+  @ApiProperty({ enum: Role, example: Role.PASSENGER, required: true, enumName: Role.PASSENGER })
   @IsEnum(Role)
   role: Role;
 }

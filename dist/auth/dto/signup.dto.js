@@ -50,13 +50,13 @@ __decorate([
         example: '1000000001',
         required: true,
     }),
-    (0, class_validator_1.Matches)(/^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/, {
-        message: 'Phone must be a valid phone number',
+    (0, class_validator_1.Matches)(/^0\d{10}$/, {
+        message: 'Phone number must be 11 digits and start with 0',
     }),
     __metadata("design:type", String)
 ], SignupDto.prototype, "phone", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: client_1.Role, example: client_1.Role.PASSENGER, required: true }),
+    (0, swagger_1.ApiProperty)({ enum: client_1.Role, example: client_1.Role.PASSENGER, required: true, enumName: client_1.Role.PASSENGER }),
     (0, class_validator_1.IsEnum)(client_1.Role),
     __metadata("design:type", String)
 ], SignupDto.prototype, "role", void 0);
