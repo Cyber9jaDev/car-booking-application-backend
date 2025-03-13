@@ -12,20 +12,8 @@ let AuthService = class AuthService {
     async signup() {
         return {};
     }
-    create(createAuthDto) {
-        return 'This action adds a new auth';
-    }
-    findAll() {
-        return `This action returns all auth`;
-    }
-    findOne(id) {
-        return `This action returns a #${id} auth`;
-    }
-    update(id, updateAuthDto) {
-        return `This action updates a #${id} auth`;
-    }
-    remove(id) {
-        return `This action removes a #${id} auth`;
+    async login() {
+        return {};
     }
 };
 exports.AuthService = AuthService;

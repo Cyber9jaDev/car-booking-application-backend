@@ -10,21 +10,54 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SignupDto = void 0;
+const swagger_1 = require("@nestjs/swagger");
+const client_1 = require("@prisma/client");
 const class_validator_1 = require("class-validator");
 class SignupDto {
     name;
     email;
-    email;
+    password;
+    phone;
+    role;
 }
 exports.SignupDto = SignupDto;
 __decorate([
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, swagger_1.ApiProperty)({ type: String, example: 'Babatunde Gbadebo', required: true }),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], SignupDto.prototype, "name", void 0);
 __decorate([
-    ApiProperty({ type: String, example: 'seller1@gmail.com', required: true }),
-    IsEmail(),
+    (0, swagger_1.ApiProperty)({ type: String, example: 'seller1@gmail.com', required: true }),
+    (0, class_validator_1.IsEmail)(),
     __metadata("design:type", String)
 ], SignupDto.prototype, "email", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Password must contain an upper case, lower case, number and special character. \n It must have minimum Length of 5 characters',
+        type: String,
+        example: 'Test@123456',
+        required: true,
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(8),
+    __metadata("design:type", String)
+], SignupDto.prototype, "password", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Enter a valid phone number',
+        type: String,
+        example: '1000000001',
+        required: true,
+    }),
+    (0, class_validator_1.Matches)(/^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/, {
+        message: 'Phone must be a valid phone number',
+    }),
+    __metadata("design:type", String)
+], SignupDto.prototype, "phone", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ enum: client_1.Role, example: client_1.Role.PASSENGER, required: true }),
+    (0, class_validator_1.IsEnum)(client_1.Role),
+    __metadata("design:type", String)
+], SignupDto.prototype, "role", void 0);
 //# sourceMappingURL=signup.dto.js.map
