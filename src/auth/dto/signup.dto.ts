@@ -39,7 +39,7 @@ export class SignupDto {
   @Matches(/^0\d{10}$/, {
     message: 'Phone number must be 11 digits and start with 0',
   })
-  phone: string;
+  phone_number: string;
 
   @ApiProperty({ enum: Role, example: Role.PASSENGER, required: true, enumName: Role.PASSENGER })
   @IsEnum(Role)

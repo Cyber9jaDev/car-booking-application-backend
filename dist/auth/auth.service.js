@@ -39,7 +39,7 @@ let AuthService = class AuthService {
                 data: {
                     email: signupDto.email,
                     name: signupDto.name,
-                    phone: signupDto.phone,
+                    phone_number: signupDto.phone_number,
                     role: signupDto.role,
                     password: hashedPassword,
                 },

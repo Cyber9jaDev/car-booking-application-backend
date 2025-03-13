@@ -1,12 +1,7 @@
 import { LoginResponse, SignupResponse } from './types/auth.types';
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
-import { Role } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
@@ -40,7 +35,7 @@ export class AuthService {
         data: {
           email: signupDto.email,
           name: signupDto.name,
-          phone: signupDto.phone,
+          phone_number: signupDto.phone_number,
           role: signupDto.role,
           password: hashedPassword,
         },

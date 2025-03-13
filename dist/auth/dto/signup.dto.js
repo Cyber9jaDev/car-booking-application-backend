@@ -17,7 +17,7 @@ class SignupDto {
     name;
     email;
     password;
-    phone;
+    phone_number;
     role;
 }
 exports.SignupDto = SignupDto;
@@ -54,7 +54,7 @@ __decorate([
         message: 'Phone number must be 11 digits and start with 0',
     }),
     __metadata("design:type", String)
-], SignupDto.prototype, "phone", void 0);
+], SignupDto.prototype, "phone_number", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ enum: client_1.Role, example: client_1.Role.PASSENGER, required: true, enumName: client_1.Role.PASSENGER }),
     (0, class_validator_1.IsEnum)(client_1.Role),
