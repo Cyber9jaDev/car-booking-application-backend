@@ -3,20 +3,15 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { DatabaseService } from 'src/database/database.service';
-import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly database: DatabaseService) {}
-
-  private generateJWT(userId: string) {
-    const secretOrPrivateKey = process.env.JWT_KEY as jwt.Secret;
-    if (!secretOrPrivateKey) {
-      throw new Error('JWT_KEY is not defined');
-    }
-    return jwt.sign({ userId }, secretOrPrivateKey, { expiresIn: '1d' });
-  }
+  constructor(
+    private readonly database: DatabaseService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async signup(signupDto: SignupDto): Promise<SignupResponse> {
     try {
@@ -41,10 +36,12 @@ export class AuthService {
         },
         select: {
           id: true,
+          email: true,
         },
       });
 
-      return { token: this.generateJWT(newUser.id) };
+      const payload = { userId: newUser.id, email: newUser.email };
+      return { "access-token": await this.jwtService.signAsync(payload) };
     } catch (error) {
       throw new Error(`Failed to create user: ${error.message}`);
     }
@@ -59,6 +56,7 @@ export class AuthService {
         select: {
           id: true,
           password: true,
+          email: true,
         },
       });
 
@@ -73,7 +71,9 @@ export class AuthService {
       if (!isValidPassword) {
         throw new BadRequestException('Invalid credentials');
       }
-      return { token: this.generateJWT(user.id) };
+
+      const payload = { userId: user.id, email: user.email };
+      return { "access-token": await this.jwtService.signAsync(payload) };
     } catch (error) {
       throw new Error(`Failed to login: ${error.message}`);
     }

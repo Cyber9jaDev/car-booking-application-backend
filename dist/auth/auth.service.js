@@ -12,19 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const database_service_1 = require("../database/database.service");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const jwt_1 = require("@nestjs/jwt");
 let AuthService = class AuthService {
     database;
-    constructor(database) {
+    jwtService;
+    constructor(database, jwtService) {
         this.database = database;
-    }
-    generateJWT(userId) {
-        const secretOrPrivateKey = process.env.JWT_KEY;
-        if (!secretOrPrivateKey) {
-            throw new Error('JWT_KEY is not defined');
-        }
-        return jwt.sign({ userId }, secretOrPrivateKey, { expiresIn: '1d' });
+        this.jwtService = jwtService;
     }
     async signup(signupDto) {
         try {
@@ -45,9 +40,11 @@ let AuthService = class AuthService {
                 },
                 select: {
                     id: true,
+                    email: true,
                 },
             });
-            return { token: this.generateJWT(newUser.id) };
+            const payload = { userId: newUser.id, email: newUser.email };
+            return { "access-token": await this.jwtService.signAsync(payload) };
         }
         catch (error) {
             throw new Error(`Failed to create user: ${error.message}`);
@@ -62,6 +59,7 @@ let AuthService = class AuthService {
                 select: {
                     id: true,
                     password: true,
+                    email: true,
                 },
             });
             if (!user) {
@@ -71,7 +69,8 @@ let AuthService = class AuthService {
             if (!isValidPassword) {
                 throw new common_1.BadRequestException('Invalid credentials');
             }
-            return { token: this.generateJWT(user.id) };
+            const payload = { userId: user.id, email: user.email };
+            return { "access-token": await this.jwtService.signAsync(payload) };
         }
         catch (error) {
             throw new Error(`Failed to login: ${error.message}`);
@@ -81,6 +80,7 @@ let AuthService = class AuthService {
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [database_service_1.DatabaseService])
+    __metadata("design:paramtypes", [database_service_1.DatabaseService,
+        jwt_1.JwtService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

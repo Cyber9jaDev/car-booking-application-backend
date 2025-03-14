@@ -1,5 +1,5 @@
 interface BaseAuthResponse {
-    token: string;
+    "access-token": string;
 }
 export interface SignupResponse extends BaseAuthResponse {
 }

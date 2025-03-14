@@ -6,7 +6,7 @@ interface BaseAuthResponse {
   // name: string;
   // phone: string;
   // role: Role;
-  token: string;
+  "access-token": string;
 }
 
 export interface SignupResponse extends BaseAuthResponse {}
