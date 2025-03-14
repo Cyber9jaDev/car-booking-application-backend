@@ -30,7 +30,7 @@ let UserController = class UserController {
 exports.UserController = UserController;
 __decorate([
     (0, common_1.Get)('/me'),
-    (0, roles_decorator_1.Roles)(client_1.Role.PASSENGER, client_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(client_1.Role.PASSENGER),
     (0, common_1.UseInterceptors)(user_interceptor_1.UserInterceptor),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),

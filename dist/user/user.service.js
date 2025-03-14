@@ -14,9 +14,23 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
+const database_service_1 = require("../database/database.service");
 let UserService = class UserService {
+    database;
+    constructor(database) {
+        this.database = database;
+    }
     async getAuthUser(request) {
-        return request;
+        const { userId } = request.user;
+        try {
+            return await this.database.user.findUnique({
+                where: { id: userId },
+                select: { id: true, email: true, name: true, role: true },
+            });
+        }
+        catch (error) {
+            throw new common_1.NotFoundException('User does not exist');
+        }
     }
 };
 exports.UserService = UserService;
@@ -27,6 +41,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserService.prototype, "getAuthUser", null);
 exports.UserService = UserService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [database_service_1.DatabaseService])
 ], UserService);
 //# sourceMappingURL=user.service.js.map

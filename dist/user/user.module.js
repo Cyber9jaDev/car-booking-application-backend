@@ -11,12 +11,14 @@ const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const user_controller_1 = require("./user.controller");
 const jwt_1 = require("@nestjs/jwt");
+const database_module_1 = require("../database/database.module");
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
 exports.UserModule = UserModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            database_module_1.DatabaseModule,
             jwt_1.JwtModule.register({
                 secret: process.env.JWT_KEY,
                 signOptions: { expiresIn: '1d' },

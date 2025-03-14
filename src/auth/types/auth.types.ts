@@ -9,7 +9,7 @@ interface BaseAuthResponse {
   "access-token": string;
 }
 
-export interface JWTPayload {
+export interface TokenPayload {
   userId: string;
   email: string;
   iat: number;

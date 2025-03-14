@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Role } from '@prisma/client';
 import { Request } from 'express';
-import { JWTPayload } from 'src/auth/types/auth.types';
+import { TokenPayload } from 'src/auth/types/auth.types';
 import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
@@ -41,7 +41,7 @@ export class AuthGuard implements CanActivate {
     try {
       const payload = (await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_KEY,
-      })) as JWTPayload;
+      })) as TokenPayload;
 
       const user = await this.database.user.findUnique({
         where: { id: payload.userId },
