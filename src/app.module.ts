@@ -7,17 +7,15 @@ import { PaymentModule } from './payment/payment.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guard/auth.guard';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({
-  imports: [DatabaseModule, UserModule, PaymentModule, AuthModule],
+  imports: [DatabaseModule, UserModule, PaymentModule, AuthModule, JwtModule],
   controllers: [AppController, AuthController],
-  providers: [AppService, AuthService,
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: UserI
-    // },
+  providers: [
+    AppService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

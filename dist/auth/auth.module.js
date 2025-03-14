@@ -12,8 +12,6 @@ const auth_service_1 = require("./auth.service");
 const auth_controller_1 = require("./auth.controller");
 const database_module_1 = require("../database/database.module");
 const jwt_1 = require("@nestjs/jwt");
-const secret = process.env.JWT_KEY;
-console.log(secret);
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -22,7 +20,6 @@ exports.AuthModule = AuthModule = __decorate([
         imports: [
             database_module_1.DatabaseModule,
             jwt_1.JwtModule.register({
-                global: true,
                 secret: process.env.JWT_KEY,
                 signOptions: { expiresIn: '1d' },
             }),

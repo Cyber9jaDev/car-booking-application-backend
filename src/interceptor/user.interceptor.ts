@@ -1,16 +1,13 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  NestInterceptor,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { Observable } from 'rxjs';
 
+@Injectable()
 export class UserInterceptor implements NestInterceptor {
   constructor(private readonly jwtService: JwtService) {}
 
-  intercept(context: ExecutionContext, next: CallHandler) {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any>  {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
 
@@ -28,7 +25,6 @@ export class UserInterceptor implements NestInterceptor {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    // Index [ 0, 1] = [type, token]
     const [type, token] = request?.headers?.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }

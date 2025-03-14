@@ -23,6 +23,8 @@ export class AuthGuard implements CanActivate {
       context.getClass(),
     ]);
 
+    console.log("Auth Guard");
+
     if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
