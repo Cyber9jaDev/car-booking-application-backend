@@ -9,22 +9,29 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { DatabaseService } from 'src/database/database.service';
 
+export interface JWTPayload {
+  userId: string;
+  email: string;
+  iat: number;
+  exp: number;
+}
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly database: DatabaseService,
     private readonly jwtService: JwtService,
+    private readonly database: DatabaseService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // "roles" is coming from the Roles decorator metadata
     const requiredRoles = await this.reflector.getAllAndOverride('roles', [
       context.getHandler(),
       context.getClass(),
     ]);
 
-    console.log("Auth Guard");
-
+    // If no role is provided
     if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
@@ -33,18 +40,26 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('No token provided');
     }
-    try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
-      });
-      console.log(payload);
 
+    try {
+      const payload = (await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_KEY,
+      })) as JWTPayload;
+
+      const user = await this.database.user.findUnique({
+        where: { id: payload.userId },
+        select: { id: true, role: true }
+      });
+
+      if(!user){
+        throw new UnauthorizedException('User does not exist');
+      }
+      return requiredRoles.includes(user.role);
     } catch (error) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid token');
     }
-    return true
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

@@ -13,6 +13,8 @@ exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const user_interceptor_1 = require("../interceptor/user.interceptor");
+const roles_decorator_1 = require("../decorator/roles.decorator");
+const client_1 = require("@prisma/client");
 let UserController = class UserController {
     userService;
     constructor(userService) {
@@ -25,6 +27,7 @@ let UserController = class UserController {
 exports.UserController = UserController;
 __decorate([
     (0, common_1.Get)('/me'),
+    (0, roles_decorator_1.Roles)(client_1.Role.PASSENGER),
     (0, common_1.UseInterceptors)(user_interceptor_1.UserInterceptor),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),

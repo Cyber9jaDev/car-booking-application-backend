@@ -1,4 +1,5 @@
-import { SetMetadata } from "@nestjs/common";
-import { Role } from "@prisma/client";
+import { SetMetadata } from '@nestjs/common';
+import { Role } from '@prisma/client';
 
-export const Roles = (...roles: Role[]) => SetMetadata("roles", roles)
+// Create Roles accessible in the guard decorator by setting a metadata named "roles"
+export const Roles = (...roles: Role[]) => SetMetadata('roles', roles);
