@@ -1,3 +1,4 @@
+import { JWTPayload } from 'src/auth/types/auth.types';
 export declare class UserService {
-    getAuthUser(): Promise<string>;
+    getAuthUser(request: JWTPayload): Promise<JWTPayload>;
 }

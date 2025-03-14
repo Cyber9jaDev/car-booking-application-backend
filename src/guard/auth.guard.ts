@@ -8,14 +8,8 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Role } from '@prisma/client';
 import { Request } from 'express';
+import { JWTPayload } from 'src/auth/types/auth.types';
 import { DatabaseService } from 'src/database/database.service';
-
-export interface JWTPayload {
-  userId: string;
-  email: string;
-  iat: number;
-  exp: number;
-}
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -57,6 +51,9 @@ export class AuthGuard implements CanActivate {
       if (!user) {
         throw new UnauthorizedException('User does not exist');
       }
+
+      // We're assigning the payload to the request object here so that we can access it in our route handlers
+      request.user = payload;
 
       return requiredRoles.includes(user.role);
     } catch (error) {
