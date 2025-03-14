@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from '@prisma/client';
 import { Request } from 'express';
 import { DatabaseService } from 'src/database/database.service';
 
@@ -26,10 +27,10 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // "roles" is coming from the Roles decorator metadata
-    const requiredRoles = await this.reflector.getAllAndOverride('roles', [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredRoles: Role[] = await this.reflector.getAllAndOverride(
+      'roles',
+      [context.getHandler(), context.getClass()],
+    );
 
     // If no role is provided
     if (!requiredRoles || requiredRoles.length === 0) {
@@ -50,12 +51,13 @@ export class AuthGuard implements CanActivate {
 
       const user = await this.database.user.findUnique({
         where: { id: payload.userId },
-        select: { id: true, role: true }
+        select: { id: true, role: true },
       });
 
-      if(!user){
+      if (!user) {
         throw new UnauthorizedException('User does not exist');
       }
+
       return requiredRoles.includes(user.role);
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
