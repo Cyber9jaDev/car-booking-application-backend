@@ -21,8 +21,12 @@ let UserService = class UserService {
         this.database = database;
     }
     async getAuthUser(request) {
-        const { userId } = request.user;
+        const user = request.user;
+        if (!user || !user.userId) {
+            throw new common_1.NotFoundException('User not authenticated');
+        }
         try {
+            const { userId } = user;
             return await this.database.user.findUnique({
                 where: { id: userId },
                 select: { id: true, email: true, name: true, role: true },
@@ -35,7 +39,7 @@ let UserService = class UserService {
 };
 exports.UserService = UserService;
 __decorate([
-    __param(0, (0, common_1.Request)()),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
