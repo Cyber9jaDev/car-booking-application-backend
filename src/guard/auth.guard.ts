@@ -55,7 +55,7 @@ export class AuthGuard implements CanActivate {
       // We're assigning the payload to the request object here so that we can access it in our route handlers
       request.user = payload;
 
-      return requiredRoles.includes(user.role);
+      return requiredRoles.includes(user.role); //true
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }

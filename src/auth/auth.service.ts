@@ -1,10 +1,11 @@
 import { LoginResponse, SignupResponse } from './types/auth.types';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Res } from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { DatabaseService } from 'src/database/database.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { CookieOptions, Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -13,15 +14,32 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signup(signupDto: SignupDto): Promise<SignupResponse> {
+  private createCookie(token: string){
+    const cookieOptions: CookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    }
+
+    return {
+      name: 'access-token',
+      value: token,
+      options: cookieOptions,
+    }
+  }
+
+  async signup(signupDto: SignupDto, @Res({ passthrough: true }) response: Response): Promise<SignupResponse> {
     try {
-      const existingUser = await this.database.user.findFirst({
+      const existingUser = await this.database.user.findUnique({
         where: { email: signupDto.email },
       });
 
       if (existingUser) {
-        throw new Error('User already exists');
+        throw new BadRequestException('User already exists');
       }
+
+      console.log(1);
 
       // Hash password with bcrypt
       const hashedPassword = await bcrypt.hash(signupDto.password, 10);
@@ -41,23 +59,23 @@ export class AuthService {
       });
 
       const payload = { userId: newUser.id, email: newUser.email };
-      return { "access-token": await this.jwtService.signAsync(payload) };
+      const token = await this.jwtService.signAsync(payload);
+      const cookie = this.createCookie(token);
+      response.cookie(cookie.name, cookie.value, cookie.options);
+
+      console.log(cookie);
+      return { message: 'User created successfully', success: true }
+      
     } catch (error) {
       throw new Error(`Failed to create user: ${error.message}`);
     }
   }
 
-  async login(loginDto: LoginDto): Promise<LoginResponse> {
+  async login(loginDto: LoginDto, @Res({ passthrough: true }) response: Response): Promise<LoginResponse> {
     try {
       const user = await this.database.user.findUnique({
-        where: {
-          email: loginDto.email,
-        },
-        select: {
-          id: true,
-          password: true,
-          email: true,
-        },
+        where: { email: loginDto.email },
+        select: { id: true, password: true, email: true, role: true },
       });
 
       if (!user) {
@@ -68,12 +86,18 @@ export class AuthService {
         loginDto.password,
         user.password,
       );
+
       if (!isValidPassword) {
         throw new BadRequestException('Invalid credentials');
       }
 
-      const payload = { userId: user.id, email: user.email };
-      return { "access-token": await this.jwtService.signAsync(payload) };
+      const payload = { userId: user.id, email: user.email, role: user.role };
+      const token = await this.jwtService.signAsync(payload);
+      const cookie = this.createCookie(token);
+      console.log(cookie);
+      response.cookie(cookie.name, cookie.value, cookie.options);
+      return { message: 'Login successful', success: true };
+
     } catch (error) {
       throw new Error(`Failed to login: ${error.message}`);
     }

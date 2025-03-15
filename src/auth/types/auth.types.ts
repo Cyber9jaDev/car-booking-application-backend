@@ -6,7 +6,9 @@ interface BaseAuthResponse {
   // name: string;
   // phone: string;
   // role: Role;
-  "access-token": string;
+  // "token": string;
+  message: string;
+  success: boolean;
 }
 
 export interface TokenPayload {
@@ -14,6 +16,7 @@ export interface TokenPayload {
   email: string;
   iat: number;
   exp: number;
+  role: Role
 }
 
 export interface SignupResponse extends BaseAuthResponse {}
