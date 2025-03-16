@@ -23,39 +23,11 @@ let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
     }
-    setCookie(response) {
-        const cookie = response.cookie('session', '123456', {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-        });
-        console.log(cookie);
-        return {};
-    }
-    getCookie(request) {
-        const cookie = request.cookies['session'];
-        console.log(cookie);
-        return cookie;
-    }
     getAuthUser(request) {
         return this.userService.getAuthUser(request);
     }
 };
 exports.UserController = UserController;
-__decorate([
-    (0, common_1.Get)('/set-cookie'),
-    __param(0, (0, common_1.Res)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], UserController.prototype, "setCookie", null);
-__decorate([
-    (0, common_1.Get)('/get-cookie'),
-    __param(0, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], UserController.prototype, "getCookie", null);
 __decorate([
     (0, common_1.Get)('/me'),
     (0, roles_decorator_1.Roles)(client_1.Role.PASSENGER),

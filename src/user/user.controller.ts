@@ -9,24 +9,6 @@ import { Role } from '@prisma/client';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('/set-cookie')
-  setCookie(@Res() response: Response) {
-    const cookie = response.cookie('session', '123456', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-    });
-    console.log(cookie);
-    return {};
-  }
-
-  @Get('/get-cookie')
-  getCookie(@Req() request: Request) {
-    const cookie = request.cookies['session'];
-    console.log(cookie);
-    return cookie;
-  }
-
   @Get('/me')
   @Roles(Role.PASSENGER)
   @UseInterceptors(UserInterceptor)
