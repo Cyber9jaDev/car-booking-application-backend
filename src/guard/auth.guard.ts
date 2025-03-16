@@ -28,20 +28,18 @@ export class AuthGuard implements CanActivate {
       if (this.isPublicRoute(requiredRoles)) {
         return true;
       }
+
       const request = this.getRequest(context);
       const accessToken = this.extractTokenFromCookie(request);
-
-      // if (!accessToken) {
-      //   throw new UnauthorizedException('No token provided');
-      // }
       const TokenPayload = await this.validateToken(accessToken);
       const authenticateduser = await this.validateUser(TokenPayload);
+
       // Attach user to request for use in controllers
       request.user = TokenPayload;
 
       return this.hasRequiredRole(requiredRoles, authenticateduser.role);
     } catch (error) {
-      throw new UnauthorizedException('Invalid token');
+      this.handleError(error);
     }
   }
 
@@ -94,10 +92,20 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractTokenFromCookie(request: Request) {
-    const token = request.cookies['access-token'];
-    if (!token) {
+    const accessToken = request.cookies['access-token'];
+    if (!accessToken) {
       throw new UnauthorizedException('Authentication token is missing');
     }
-    return token;
+    return accessToken;
+  }
+
+  private handleError(error: Error): never {
+    if (
+      error instanceof UnauthorizedException ||
+      error instanceof ForbiddenException
+    ) {
+      throw error;
+    }
+    throw new UnauthorizedException('Authentication failed');
   }
 }
