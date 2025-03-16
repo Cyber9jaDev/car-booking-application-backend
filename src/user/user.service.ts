@@ -1,26 +1,27 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable, NotFoundException, Req } from '@nestjs/common';
+import { Request } from 'express';
+import { TokenPayload } from 'src/auth/types/auth.types';
+import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
+  constructor(private readonly database: DatabaseService) {}
 
-  findAll() {
-    return `This action returns all user`;
-  }
+  async getAuthUser(@Req() request: Request) {
+    const user = (request as any).user as TokenPayload;
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+    if (!user || !user.userId) {
+      throw new NotFoundException('User not authenticated');
+    }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    try {
+      const { userId } = user;
+      return await this.database.user.findUnique({
+        where: { id: userId },
+        select: { id: true, email: true, name: true, role: true },
+      });
+    } catch (error) {
+      throw new NotFoundException('User does not exist');
+    }
   }
 }

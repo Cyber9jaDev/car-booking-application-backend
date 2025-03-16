@@ -22,26 +22,30 @@ let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
     }
-    async signup(signupDto) {
-        return this.authService.signup(signupDto);
+    async signup(signupDto, response) {
+        return this.authService.signup(signupDto, response);
     }
-    async login(loginDto) {
-        return this.authService.login(loginDto);
+    async login(loginDto, response) {
+        return this.authService.login(loginDto, response);
     }
 };
 exports.AuthController = AuthController;
 __decorate([
+    (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
     (0, common_1.Post)('/signup'),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [signup_dto_1.SignupDto]),
+    __metadata("design:paramtypes", [signup_dto_1.SignupDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "signup", null);
 __decorate([
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, common_1.Post)('/login'),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [login_dto_1.LoginDto]),
+    __metadata("design:paramtypes", [login_dto_1.LoginDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 exports.AuthController = AuthController = __decorate([

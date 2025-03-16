@@ -1,9 +1,12 @@
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Request } from 'express';
+import { DatabaseService } from 'src/database/database.service';
 export declare class UserService {
-    create(createUserDto: CreateUserDto): string;
-    findAll(): string;
-    findOne(id: number): string;
-    update(id: number, updateUserDto: UpdateUserDto): string;
-    remove(id: number): string;
+    private readonly database;
+    constructor(database: DatabaseService);
+    getAuthUser(request: Request): Promise<{
+        name: string;
+        id: string;
+        email: string;
+        role: import(".prisma/client").$Enums.Role;
+    } | null>;
 }

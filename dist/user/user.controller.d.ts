@@ -1,12 +1,12 @@
+import { Request } from 'express';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 export declare class UserController {
     private readonly userService;
     constructor(userService: UserService);
-    create(createUserDto: CreateUserDto): string;
-    findAll(): string;
-    findOne(id: string): string;
-    update(id: string, updateUserDto: UpdateUserDto): string;
-    remove(id: string): string;
+    getAuthUser(request: Request): Promise<{
+        name: string;
+        id: string;
+        email: string;
+        role: import(".prisma/client").$Enums.Role;
+    } | null>;
 }

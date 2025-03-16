@@ -8,32 +8,46 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
+const signup_dto_1 = require("./dto/signup.dto");
+const login_dto_1 = require("./dto/login.dto");
 const database_service_1 = require("../database/database.service");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const jwt_1 = require("@nestjs/jwt");
 let AuthService = class AuthService {
     database;
-    constructor(database) {
+    jwtService;
+    constructor(database, jwtService) {
         this.database = database;
+        this.jwtService = jwtService;
     }
-    generateJWT(userId) {
-        const secretOrPrivateKey = process.env.JWT_KEY;
-        if (!secretOrPrivateKey) {
-            throw new Error('JWT_KEY is not defined');
-        }
-        return jwt.sign({ userId }, secretOrPrivateKey, { expiresIn: '1d' });
+    createCookie(token) {
+        const cookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: "strict",
+            maxAge: 24 * 60 * 60 * 1000,
+        };
+        return {
+            name: 'access-token',
+            value: token,
+            options: cookieOptions,
+        };
     }
-    async signup(signupDto) {
+    async signup(signupDto, response) {
         try {
-            const existingUser = await this.database.user.findFirst({
+            const existingUser = await this.database.user.findUnique({
                 where: { email: signupDto.email },
             });
             if (existingUser) {
-                throw new Error('User already exists');
+                throw new common_1.BadRequestException('User already exists');
             }
+            console.log(1);
             const hashedPassword = await bcrypt.hash(signupDto.password, 10);
             const newUser = await this.database.user.create({
                 data: {
@@ -45,24 +59,25 @@ let AuthService = class AuthService {
                 },
                 select: {
                     id: true,
+                    email: true,
                 },
             });
-            return { token: this.generateJWT(newUser.id) };
+            const payload = { userId: newUser.id, email: newUser.email };
+            const token = await this.jwtService.signAsync(payload);
+            const cookie = this.createCookie(token);
+            response.cookie(cookie.name, cookie.value, cookie.options);
+            console.log(cookie);
+            return { message: 'User created successfully', success: true };
         }
         catch (error) {
             throw new Error(`Failed to create user: ${error.message}`);
         }
     }
-    async login(loginDto) {
+    async login(loginDto, response) {
         try {
             const user = await this.database.user.findUnique({
-                where: {
-                    email: loginDto.email,
-                },
-                select: {
-                    id: true,
-                    password: true,
-                },
+                where: { email: loginDto.email },
+                select: { id: true, password: true, email: true, role: true },
             });
             if (!user) {
                 throw new common_1.BadRequestException('Invalid credentials');
@@ -71,7 +86,12 @@ let AuthService = class AuthService {
             if (!isValidPassword) {
                 throw new common_1.BadRequestException('Invalid credentials');
             }
-            return { token: this.generateJWT(user.id) };
+            const payload = { userId: user.id, email: user.email, role: user.role };
+            const token = await this.jwtService.signAsync(payload);
+            const cookie = this.createCookie(token);
+            console.log(cookie);
+            response.cookie(cookie.name, cookie.value, cookie.options);
+            return { message: 'Login successful', success: true };
         }
         catch (error) {
             throw new Error(`Failed to login: ${error.message}`);
@@ -79,8 +99,21 @@ let AuthService = class AuthService {
     }
 };
 exports.AuthService = AuthService;
+__decorate([
+    __param(1, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [signup_dto_1.SignupDto, Object]),
+    __metadata("design:returntype", Promise)
+], AuthService.prototype, "signup", null);
+__decorate([
+    __param(1, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [login_dto_1.LoginDto, Object]),
+    __metadata("design:returntype", Promise)
+], AuthService.prototype, "login", null);
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [database_service_1.DatabaseService])
+    __metadata("design:paramtypes", [database_service_1.DatabaseService,
+        jwt_1.JwtService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map
