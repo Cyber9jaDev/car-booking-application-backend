@@ -48,7 +48,11 @@ let AuthService = class AuthService {
                 where: { email: signupDto.email },
             });
             if (existingUser) {
-                throw new common_1.BadRequestException('User already exists');
+                throw new common_1.BadRequestException({
+                    success: false,
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: 'Email already exists',
+                });
             }
             const hashedPassword = await bcrypt.hash(signupDto.password, 10);
             const newUser = await this.database.user.create({
@@ -68,10 +72,10 @@ let AuthService = class AuthService {
             const token = await this.jwtService.signAsync(payload);
             const cookie = this.createCookie(token);
             response.cookie(cookie.name, cookie.value, cookie.options);
-            return { message: 'User created successfully', success: true, statusCode: common_1.HttpStatus.OK };
+            return { message: 'User created successfully', success: true, statusCode: common_1.HttpStatus.CREATED };
         }
         catch (error) {
-            throw new Error(`Failed to create user: ${error.message}`);
+            throw error;
         }
     }
     async login(loginDto, response) {

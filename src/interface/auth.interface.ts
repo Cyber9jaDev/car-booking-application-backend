@@ -16,3 +16,9 @@ export interface TokenPayload {
 
 export interface SignupResponse extends BaseAuthResponse {}
 export interface LoginResponse extends BaseAuthResponse {}
+
+export interface BaseErrorResponse{
+  message: string;
+  statusCode: number;
+  success: boolean;
+}

@@ -40,7 +40,11 @@ export class AuthService {
       });
 
       if (existingUser) {
-        throw new BadRequestException('User already exists');
+        throw new BadRequestException({
+          success: false,
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Email already exists',
+        });
       }
 
       const hashedPassword = await bcrypt.hash(signupDto.password, 10);
@@ -64,10 +68,10 @@ export class AuthService {
       const cookie = this.createCookie(token);
       response.cookie(cookie.name, cookie.value, cookie.options);
 
-      return { message: 'User created successfully', success: true, statusCode: HttpStatus.OK }
+      return { message: 'User created successfully', success: true, statusCode: HttpStatus.CREATED }
       
     } catch (error) {
-      throw new Error(`Failed to create user: ${error.message}`);
+      throw error;
     }
   }
 
