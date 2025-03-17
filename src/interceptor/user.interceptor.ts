@@ -8,7 +8,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
-import { TokenPayload } from 'src/auth/types/auth.types';
+import { TokenPayload } from 'src/interface/auth.interface';
 
 @Injectable()
 export class UserInterceptor implements NestInterceptor {

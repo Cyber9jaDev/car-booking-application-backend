@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import {
+  IsBoolean,
   IsEmail,
   IsEnum,
   IsNotEmpty,
@@ -39,9 +40,15 @@ export class SignupDto {
   @Matches(/^0\d{10}$/, {
     message: 'Phone number must be 11 digits and start with 0',
   })
-  phone_number: string;
+  phoneNumber: string;
 
   @ApiProperty({ enum: Role, example: Role.PASSENGER, required: true, enumName: Role.PASSENGER })
   @IsEnum(Role)
   role: Role;
+
+
+  @ApiProperty({ type: Boolean, example: true, required: true, default: false })
+  @IsBoolean()
+  hasAgreedTermsAndConditions: boolean;
+  
 }

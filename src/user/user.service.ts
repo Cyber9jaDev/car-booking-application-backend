@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, Req } from '@nestjs/common';
 import { Request } from 'express';
-import { TokenPayload } from 'src/auth/types/auth.types';
 import { DatabaseService } from 'src/database/database.service';
+import { TokenPayload } from 'src/interface/auth.interface';
 
 @Injectable()
 export class UserService {

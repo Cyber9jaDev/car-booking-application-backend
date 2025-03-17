@@ -12,7 +12,8 @@ model User {
   name                String            @db.VarChar(255)
   email               String            @unique
   password            String            @db.VarChar(255)
-  phone_number        String            @unique
+  phoneNumber         String            @unique
+  hasAgreedTermsAndConditions Boolean   @default(false)
   role                Role              @default(PASSENGER)
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt

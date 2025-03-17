@@ -40,6 +40,9 @@ let AuthService = class AuthService {
         };
     }
     async signup(signupDto, response) {
+        if (!signupDto.hasAgreedTermsAndConditions) {
+            throw new common_1.BadRequestException('Please agree to the terms and conditions');
+        }
         try {
             const existingUser = await this.database.user.findUnique({
                 where: { email: signupDto.email },
@@ -47,13 +50,12 @@ let AuthService = class AuthService {
             if (existingUser) {
                 throw new common_1.BadRequestException('User already exists');
             }
-            console.log(1);
             const hashedPassword = await bcrypt.hash(signupDto.password, 10);
             const newUser = await this.database.user.create({
                 data: {
                     email: signupDto.email,
                     name: signupDto.name,
-                    phone_number: signupDto.phone_number,
+                    phoneNumber: signupDto.phoneNumber,
                     role: signupDto.role,
                     password: hashedPassword,
                 },
@@ -66,8 +68,7 @@ let AuthService = class AuthService {
             const token = await this.jwtService.signAsync(payload);
             const cookie = this.createCookie(token);
             response.cookie(cookie.name, cookie.value, cookie.options);
-            console.log(cookie);
-            return { message: 'User created successfully', success: true };
+            return { message: 'User created successfully', success: true, statusCode: common_1.HttpStatus.OK };
         }
         catch (error) {
             throw new Error(`Failed to create user: ${error.message}`);
@@ -91,7 +92,7 @@ let AuthService = class AuthService {
             const cookie = this.createCookie(token);
             console.log(cookie);
             response.cookie(cookie.name, cookie.value, cookie.options);
-            return { message: 'Login successful', success: true };
+            return { message: 'Login successful', success: true, statusCode: common_1.HttpStatus.OK };
         }
         catch (error) {
             throw new Error(`Failed to login: ${error.message}`);

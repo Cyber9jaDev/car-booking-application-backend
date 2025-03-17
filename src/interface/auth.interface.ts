@@ -3,6 +3,7 @@ import { Role } from "@prisma/client";
 interface BaseAuthResponse {
   message: string;
   success: boolean;
+  statusCode: number;
 }
 
 export interface TokenPayload {

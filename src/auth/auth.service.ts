@@ -1,11 +1,11 @@
-import { LoginResponse, SignupResponse } from './types/auth.types';
-import { BadRequestException, Injectable, Res } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, Res } from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { DatabaseService } from 'src/database/database.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { CookieOptions, Response } from 'express';
+import { LoginResponse, SignupResponse } from 'src/interface/auth.interface';
 
 @Injectable()
 export class AuthService {
@@ -30,6 +30,10 @@ export class AuthService {
   }
 
   async signup(signupDto: SignupDto, @Res({ passthrough: true }) response: Response): Promise<SignupResponse> {
+    
+    if(!signupDto.hasAgreedTermsAndConditions){
+      throw new BadRequestException('Please agree to the terms and conditions')
+    }
     try {
       const existingUser = await this.database.user.findUnique({
         where: { email: signupDto.email },
@@ -39,16 +43,13 @@ export class AuthService {
         throw new BadRequestException('User already exists');
       }
 
-      console.log(1);
-
-      // Hash password with bcrypt
       const hashedPassword = await bcrypt.hash(signupDto.password, 10);
 
       const newUser = await this.database.user.create({
         data: {
           email: signupDto.email,
           name: signupDto.name,
-          phone_number: signupDto.phone_number,
+          phoneNumber: signupDto.phoneNumber,
           role: signupDto.role,
           password: hashedPassword,
         },
@@ -63,8 +64,7 @@ export class AuthService {
       const cookie = this.createCookie(token);
       response.cookie(cookie.name, cookie.value, cookie.options);
 
-      console.log(cookie);
-      return { message: 'User created successfully', success: true }
+      return { message: 'User created successfully', success: true, statusCode: HttpStatus.OK }
       
     } catch (error) {
       throw new Error(`Failed to create user: ${error.message}`);
@@ -96,7 +96,7 @@ export class AuthService {
       const cookie = this.createCookie(token);
       console.log(cookie);
       response.cookie(cookie.name, cookie.value, cookie.options);
-      return { message: 'Login successful', success: true };
+      return { message: 'Login successful', success: true, statusCode: HttpStatus.OK };
 
     } catch (error) {
       throw new Error(`Failed to login: ${error.message}`);
