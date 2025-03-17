@@ -34,9 +34,14 @@ export class AuthService {
     if(!signupDto.hasAgreedTermsAndConditions){
       throw new BadRequestException('Please agree to the terms and conditions')
     }
+
     try {
       const existingUser = await this.database.user.findUnique({
         where: { email: signupDto.email },
+      });
+
+      const existingPhoneNumber = await this.database.user.findUnique({
+        where: { phoneNumber: signupDto.phoneNumber },
       });
 
       if (existingUser) {
@@ -44,6 +49,14 @@ export class AuthService {
           success: false,
           statusCode: HttpStatus.BAD_REQUEST,
           message: 'Email already exists',
+        });
+      }
+
+      if (existingPhoneNumber) {
+        throw new BadRequestException({
+          success: false,
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Phone number is in use by another user',
         });
       }
 
@@ -68,7 +81,7 @@ export class AuthService {
       const cookie = this.createCookie(token);
       response.cookie(cookie.name, cookie.value, cookie.options);
 
-      return { message: 'User created successfully', success: true, statusCode: HttpStatus.CREATED }
+      return { message: 'User created successfully', success: true, statusCode: HttpStatus.CREATED}
       
     } catch (error) {
       throw error;

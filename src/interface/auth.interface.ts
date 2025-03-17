@@ -4,6 +4,9 @@ interface BaseAuthResponse {
   message: string;
   success: boolean;
   statusCode: number;
+  data?: {
+    [key: string]: any;
+  }
 }
 
 export interface TokenPayload {

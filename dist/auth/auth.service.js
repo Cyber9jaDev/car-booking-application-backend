@@ -47,11 +47,21 @@ let AuthService = class AuthService {
             const existingUser = await this.database.user.findUnique({
                 where: { email: signupDto.email },
             });
+            const existingPhoneNumber = await this.database.user.findUnique({
+                where: { phoneNumber: signupDto.phoneNumber },
+            });
             if (existingUser) {
                 throw new common_1.BadRequestException({
                     success: false,
                     statusCode: common_1.HttpStatus.BAD_REQUEST,
                     message: 'Email already exists',
+                });
+            }
+            if (existingPhoneNumber) {
+                throw new common_1.BadRequestException({
+                    success: false,
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: 'Phone number is in use by another user',
                 });
             }
             const hashedPassword = await bcrypt.hash(signupDto.password, 10);
