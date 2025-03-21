@@ -8,7 +8,7 @@ import {
   Min,
   ValidateIf,
 } from 'class-validator';
-import { Bus, City } from 'src/interface/admin.interface';
+import { City, Vehicle } from 'src/interface/admin.interface';
 
 export class CreateTicketDto {
   @ApiProperty({
@@ -83,5 +83,5 @@ export class CreateTicketDto {
   @IsEnum(Bus, {
     message: 'Invalid bus type. Please select from the available options.',
   })
-  busType: Bus;
+  vehicle: Vehicle;
 }

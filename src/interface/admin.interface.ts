@@ -23,7 +23,7 @@ export enum City {
   OSUN = "osun",
 }
 
-export enum Bus {
+export enum Vehicle {
   TOYOTA = "toyota",
   MINIBUS = "minibus",
   SIENNA = "sienna",
