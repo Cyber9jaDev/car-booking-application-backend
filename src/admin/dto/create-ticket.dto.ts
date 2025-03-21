@@ -62,16 +62,16 @@ export class CreateTicketDto {
     example: 1000,
     minimum: 1,
     required: true,
-    description: 'Price of the ticket in the local currency',
+    description: 'Ticket fee of the ticket in the local currency',
   })
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
-    { message: 'Price must be a number' },
+    { message: 'Ticket fee must be a number' },
   )
-  @IsPositive({ message: 'price must be a positive number' })
-  @Min(1, { message: 'Price must be at least 1' })
+  @IsPositive({ message: 'Ticket fee must be a positive number' })
+  @Min(1, { message: 'Ticket fee must be at least 1' })
   @Type(() => Number) // Automatically converts string inputs to numbers
-  price: number;
+  ticketFee: number;
 
   @ApiProperty({
     enum: Bus,
