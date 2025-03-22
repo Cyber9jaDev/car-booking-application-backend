@@ -44,10 +44,6 @@ export class AuthService {
         where: { email: signupDto.email },
       });
 
-      const existingPhoneNumber = await this.database.user.findUnique({
-        where: { phoneNumber: signupDto.phoneNumber },
-      });
-
       if (existingUser) {
         throw new BadRequestException({
           error: "Bad Request",
@@ -55,6 +51,10 @@ export class AuthService {
           message: ['Email already exists'],
         });
       }
+
+      const existingPhoneNumber = await this.database.user.findUnique({
+        where: { phoneNumber: signupDto.phoneNumber },
+      });
 
       if (existingPhoneNumber) {
         throw new BadRequestException({
@@ -80,7 +80,8 @@ export class AuthService {
         },
       });
 
-      const payload = { userId: newUser.id, email: newUser.email };
+      // JWT Payload - attach only userId to jwt payload
+      const payload = { userId: newUser.id };    
       const token = await this.jwtService.signAsync(payload);
       const cookie = this.createCookie(token);
       response.cookie(cookie.name, cookie.value, cookie.options);
@@ -112,10 +113,10 @@ export class AuthService {
         throw new BadRequestException('Invalid credentials');
       }
 
-      const payload = { userId: user.id, email: user.email, role: user.role };
+      // JWT Payload
+      const payload = { userId: user.id };
       const token = await this.jwtService.signAsync(payload);
       const cookie = this.createCookie(token);
-      console.log(cookie);
       response.cookie(cookie.name, cookie.value, cookie.options);
       return { message: 'Login successful', error: false, statusCode: HttpStatus.OK };
 

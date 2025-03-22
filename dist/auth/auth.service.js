@@ -51,9 +51,6 @@ let AuthService = class AuthService {
             const existingUser = await this.database.user.findUnique({
                 where: { email: signupDto.email },
             });
-            const existingPhoneNumber = await this.database.user.findUnique({
-                where: { phoneNumber: signupDto.phoneNumber },
-            });
             if (existingUser) {
                 throw new common_1.BadRequestException({
                     error: "Bad Request",
@@ -61,6 +58,9 @@ let AuthService = class AuthService {
                     message: ['Email already exists'],
                 });
             }
+            const existingPhoneNumber = await this.database.user.findUnique({
+                where: { phoneNumber: signupDto.phoneNumber },
+            });
             if (existingPhoneNumber) {
                 throw new common_1.BadRequestException({
                     error: "Bad Request",
@@ -82,7 +82,7 @@ let AuthService = class AuthService {
                     email: true,
                 },
             });
-            const payload = { userId: newUser.id, email: newUser.email };
+            const payload = { userId: newUser.id };
             const token = await this.jwtService.signAsync(payload);
             const cookie = this.createCookie(token);
             response.cookie(cookie.name, cookie.value, cookie.options);
@@ -105,10 +105,9 @@ let AuthService = class AuthService {
             if (!isValidPassword) {
                 throw new common_1.BadRequestException('Invalid credentials');
             }
-            const payload = { userId: user.id, email: user.email, role: user.role };
+            const payload = { userId: user.id };
             const token = await this.jwtService.signAsync(payload);
             const cookie = this.createCookie(token);
-            console.log(cookie);
             response.cookie(cookie.name, cookie.value, cookie.options);
             return { message: 'Login successful', error: false, statusCode: common_1.HttpStatus.OK };
         }

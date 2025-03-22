@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -34,11 +35,6 @@ export class AuthGuard implements CanActivate {
       const TokenPayload = await this.validateToken(accessToken);
       const authenticatedUser = await this.validateUser(TokenPayload);
 
-      // console.log(authenticatedUser);
-
-      // Attach user to request for use in controllers
-      request.user = TokenPayload;
-
       return this.hasRequiredRole(requiredRoles, authenticatedUser.role);
     } catch (error) {
       this.handleError(error);
@@ -62,7 +58,7 @@ export class AuthGuard implements CanActivate {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User does not exist');
+      throw new NotFoundException('User does not exist');
     }
 
     return user;
