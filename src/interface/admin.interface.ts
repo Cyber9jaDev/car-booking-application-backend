@@ -1,5 +1,5 @@
 export enum VehicleSeats {
-  sienna = 7,
-  minibus = 12,
-  toyota = 14
+  SIENNA = 7,
+  MINIBUS = 12,
+  TOYOTA = 14
 }

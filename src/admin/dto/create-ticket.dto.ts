@@ -18,7 +18,7 @@ import {
 export class CreateTicketDto {
   @ApiProperty({
     enum: City,
-    example: City.aba,
+    example: City.BENIN,
     required: true,
     description: 'Departure city for the trip',
   })
@@ -31,7 +31,7 @@ export class CreateTicketDto {
 
   @ApiProperty({
     enum: City,
-    example: City.agege,
+    example: City.ABUJA,
     required: true,
     description: 'Arrival city for the trip',
   })
@@ -80,7 +80,7 @@ export class CreateTicketDto {
 
   @ApiProperty({
     enum: VehicleType,
-    example: VehicleType.minibus,
+    example: VehicleType.MINIBUS,
     required: true,
     description: 'Type of bus for the trip',
   })
@@ -94,9 +94,9 @@ export class CreateTicketDto {
     type: 'array',
     description: 'Number of available seats per vehicle type',
     examples: [
-      { vehicleType: VehicleType.sienna, seats: 7 },
-      { vehicleType: VehicleType.minibus, seats: 12 },
-      { vehicleType: VehicleType.toyota, seats: 14 },
+      { vehicleType: VehicleType.SIENNA, seats: 7 },
+      { vehicleType: VehicleType.MINIBUS, seats: 12 },
+      { vehicleType: VehicleType.TOYOTA, seats: 14 },
     ],
     minimum: 1,
     maximum: 14,
