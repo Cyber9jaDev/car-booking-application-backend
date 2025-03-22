@@ -9,6 +9,7 @@ export declare class AuthService {
     private readonly jwtService;
     constructor(database: DatabaseService, jwtService: JwtService);
     private createCookie;
+    private handleError;
     signup(signupDto: SignupDto, response: Response): Promise<SignupResponse>;
     login(loginDto: LoginDto, response: Response): Promise<LoginResponse>;
 }

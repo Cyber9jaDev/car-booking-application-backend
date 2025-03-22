@@ -1,4 +1,10 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { VehicleType } from '@prisma/client';
@@ -9,10 +15,9 @@ export class AdminService {
   constructor(private readonly db: DatabaseService) {}
 
   async createTicket(createTicketDto: CreateTicketDto) {
-
-    if(createTicketDto.departureCity === createTicketDto.arrivalCity){
+    if (createTicketDto.departureCity === createTicketDto.arrivalCity) {
       throw new BadRequestException({
-        error: "Bad Request",
+        error: 'Bad Request',
         statusCode: HttpStatus.BAD_REQUEST,
         message: ['Departure city cannot be the same as the arrival city'],
       });
@@ -36,8 +41,8 @@ export class AdminService {
       });
 
       if (!createTicket) {
-        throw new BadRequestException({
-          error: "Bad Request",
+        throw new UnauthorizedException({
+          error: 'Unauthorized',
           statusCode: HttpStatus.BAD_REQUEST,
           message: ['Unable to create ticket'],
         });
@@ -45,8 +50,22 @@ export class AdminService {
 
       return createTicket;
     } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  private handleError(error: Error): never {
+    if (
+      error instanceof UnauthorizedException ||
+      error instanceof BadRequestException
+    ) {
       throw error;
     }
+    throw new InternalServerErrorException({
+      error: 'Internal Server Error',
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      message: ['Internal Server Error'],
+    });
   }
 
   private createSeatNumbers(vehicleType: VehicleType) {

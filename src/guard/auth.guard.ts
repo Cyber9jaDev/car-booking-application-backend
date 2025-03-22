@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -44,9 +45,11 @@ export class AuthGuard implements CanActivate {
   private hasRequiredRole(requiredRoles: Role[], userRole: Role): boolean {
     const hasPermission = requiredRoles.includes(userRole);
     if (!hasPermission) {
-      throw new ForbiddenException(
-        'You do not have permission to access this resource',
-      );
+      throw new ForbiddenException({
+        error: 'Forbidden',
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['You do not have permission to access this resource'],
+      });
     }
     return true;
   }
@@ -58,7 +61,11 @@ export class AuthGuard implements CanActivate {
     });
 
     if (!user) {
-      throw new NotFoundException('User does not exist');
+      throw new NotFoundException({
+        error: 'Not Found',
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['User does not exist'],
+      });
     }
 
     return user;

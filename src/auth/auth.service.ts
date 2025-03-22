@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable, Res } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpStatus, Injectable, InternalServerErrorException, Res, UnauthorizedException } from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { DatabaseService } from 'src/database/database.service';
@@ -28,6 +28,20 @@ export class AuthService {
       options: cookieOptions,
     }
   }
+
+  private handleError(error: Error): never {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException({
+        error: "Internal Server Error",
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: ['Internal Server Error'],
+      });
+    }
 
   async signup(signupDto: SignupDto, @Res({ passthrough: true }) response: Response): Promise<SignupResponse> {
     
@@ -80,6 +94,14 @@ export class AuthService {
         },
       });
 
+      if(!newUser){
+        throw new UnauthorizedException({
+          error: "Unauthorized",
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: ['Failed to create ticket'],
+        });
+      }
+
       // JWT Payload - attach only userId to jwt payload
       const payload = { userId: newUser.id };    
       const token = await this.jwtService.signAsync(payload);
@@ -89,7 +111,7 @@ export class AuthService {
       return { message: 'User created successfully', error: false, statusCode: HttpStatus.CREATED}
       
     } catch (error) {
-      throw error;
+      this.handleError(error)
     }
   }
 

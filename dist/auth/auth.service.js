@@ -39,6 +39,17 @@ let AuthService = class AuthService {
             options: cookieOptions,
         };
     }
+    handleError(error) {
+        if (error instanceof common_1.UnauthorizedException ||
+            error instanceof common_1.BadRequestException) {
+            throw error;
+        }
+        throw new common_1.InternalServerErrorException({
+            error: "Internal Server Error",
+            statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+            message: ['Internal Server Error'],
+        });
+    }
     async signup(signupDto, response) {
         if (!signupDto.hasAgreedTermsAndConditions) {
             throw new common_1.BadRequestException({
@@ -82,6 +93,13 @@ let AuthService = class AuthService {
                     email: true,
                 },
             });
+            if (!newUser) {
+                throw new common_1.UnauthorizedException({
+                    error: "Unauthorized",
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: ['Failed to create ticket'],
+                });
+            }
             const payload = { userId: newUser.id };
             const token = await this.jwtService.signAsync(payload);
             const cookie = this.createCookie(token);
@@ -89,7 +107,7 @@ let AuthService = class AuthService {
             return { message: 'User created successfully', error: false, statusCode: common_1.HttpStatus.CREATED };
         }
         catch (error) {
-            throw error;
+            this.handleError(error);
         }
     }
     async login(loginDto, response) {
