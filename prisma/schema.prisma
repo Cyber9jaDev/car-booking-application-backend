@@ -12,14 +12,60 @@ model User {
   name                String            @db.VarChar(255)
   email               String            @unique
   password            String            @db.VarChar(255)
-  phone_number        String            @unique
+  phoneNumber         String            @unique
+  hasAgreedTermsAndConditions Boolean   @default(false)
   role                Role              @default(PASSENGER)
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
+}
+
+model Ticket {
+  id                  String            @id @default(uuid())
+  departureCity       City
+  arrivalCity         City
+  departureDate       String
+  vehicleType         VehicleType
+  ticketFee           Int       
+  availableSeats      Int[]                        
+  updatedAt           DateTime
+  createdAt           DateTime          @default(now())
 }
 
 enum Role {
   PASSENGER
   ADMIN
 }
+
+enum City {
+  lagos
+  kano
+  abuja
+  ibadan
+  ph
+  aba
+  onitsha
+  benin
+  shagamu
+  ogbomoso
+  owerri
+  ikeja
+  osogbo
+  agege
+  ilesa
+  oshodi
+  surulere
+  ikoyi
+  warri
+  akure
+  ekiti
+  osun
+}
+
+enum VehicleType {
+  toyota
+  minibus
+  sienna
+}
+
+
 

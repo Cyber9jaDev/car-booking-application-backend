@@ -40,20 +40,36 @@ let AuthService = class AuthService {
         };
     }
     async signup(signupDto, response) {
+        if (!signupDto.hasAgreedTermsAndConditions) {
+            throw new common_1.BadRequestException('Please agree to the terms and conditions');
+        }
         try {
             const existingUser = await this.database.user.findUnique({
                 where: { email: signupDto.email },
             });
+            const existingPhoneNumber = await this.database.user.findUnique({
+                where: { phoneNumber: signupDto.phoneNumber },
+            });
             if (existingUser) {
-                throw new common_1.BadRequestException('User already exists');
+                throw new common_1.BadRequestException({
+                    success: false,
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: 'Email already exists',
+                });
             }
-            console.log(1);
+            if (existingPhoneNumber) {
+                throw new common_1.BadRequestException({
+                    success: false,
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: 'Phone number is in use by another user',
+                });
+            }
             const hashedPassword = await bcrypt.hash(signupDto.password, 10);
             const newUser = await this.database.user.create({
                 data: {
                     email: signupDto.email,
                     name: signupDto.name,
-                    phone_number: signupDto.phone_number,
+                    phoneNumber: signupDto.phoneNumber,
                     role: signupDto.role,
                     password: hashedPassword,
                 },
@@ -66,11 +82,10 @@ let AuthService = class AuthService {
             const token = await this.jwtService.signAsync(payload);
             const cookie = this.createCookie(token);
             response.cookie(cookie.name, cookie.value, cookie.options);
-            console.log(cookie);
-            return { message: 'User created successfully', success: true };
+            return { message: 'User created successfully', success: true, statusCode: common_1.HttpStatus.CREATED };
         }
         catch (error) {
-            throw new Error(`Failed to create user: ${error.message}`);
+            throw error;
         }
     }
     async login(loginDto, response) {
@@ -91,7 +106,7 @@ let AuthService = class AuthService {
             const cookie = this.createCookie(token);
             console.log(cookie);
             response.cookie(cookie.name, cookie.value, cookie.options);
-            return { message: 'Login successful', success: true };
+            return { message: 'Login successful', success: true, statusCode: common_1.HttpStatus.OK };
         }
         catch (error) {
             throw new Error(`Failed to login: ${error.message}`);

@@ -7,10 +7,10 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { Role, User } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { Request } from 'express';
-import { TokenPayload } from 'src/auth/types/auth.types';
 import { DatabaseService } from 'src/database/database.service';
+import { TokenPayload } from 'src/interface/auth.interface';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

@@ -3,6 +3,7 @@ export declare class SignupDto {
     name: string;
     email: string;
     password: string;
-    phone_number: string;
+    phoneNumber: string;
     role: Role;
+    hasAgreedTermsAndConditions: boolean;
 }

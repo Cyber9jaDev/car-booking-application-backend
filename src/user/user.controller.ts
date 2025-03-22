@@ -15,4 +15,11 @@ export class UserController {
   getAuthUser(@Req() request: Request) {
     return this.userService.getAuthUser(request);
   }
+
+  
+
+
+
+
+  
 }
