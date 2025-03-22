@@ -63,7 +63,7 @@ export class AuthGuard implements CanActivate {
     if (!user) {
       throw new NotFoundException({
         error: 'Not Found',
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.NOT_FOUND,
         message: ['User does not exist'],
       });
     }
@@ -77,7 +77,11 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_KEY,
       });
     } catch (error) {
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException({
+        error: 'Unauthorized',
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: ['Invalid or expired token'],
+      });
     }
   }
 
@@ -99,7 +103,11 @@ export class AuthGuard implements CanActivate {
   private extractTokenFromCookie(request: Request) {
     const accessToken = request.cookies['access-token'];
     if (!accessToken) {
-      throw new UnauthorizedException('Authentication token is missing');
+      throw new UnauthorizedException({
+        error: 'Unauthorized',
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: ['Authentication token is missing'],
+      });
     }
     return accessToken;
   }
@@ -111,6 +119,10 @@ export class AuthGuard implements CanActivate {
     ) {
       throw error;
     }
-    throw new UnauthorizedException('Authentication failed');
+    throw new UnauthorizedException({
+      error: 'Unauthorized',
+      statusCode: HttpStatus.UNAUTHORIZED,
+      message: ['Authentication failed'],
+    });
   }
 }

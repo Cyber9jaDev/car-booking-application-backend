@@ -14,8 +14,7 @@ import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UserInterceptor } from 'src/interceptor/user.interceptor';
 import { Roles } from 'src/decorator/roles.decorator';
 import { Role } from '@prisma/client';
-import { Request } from 'express';
-// import { JwtPayload } from 'src/interface/user.interface';
+// import { Request } from 'express';
 import { User } from 'src/decorator/user.decorator';
 import { JwtPayload } from 'jsonwebtoken';
 
@@ -28,9 +27,10 @@ export class AdminController {
   @Post('/create-ticket')
   async createTicket(
     @Body() createTicketDto: CreateTicketDto,
-    @Req() request: Request,
+    // @Req() request: Request,
     @User() user: JwtPayload
   ) {
+    // We can also use the request object to get the user
     return this.adminService.createTicket(createTicketDto, user.userId);
   }
 }

@@ -43,7 +43,7 @@ export class AdminService {
       if (!createTicket) {
         throw new UnauthorizedException({
           error: 'Unauthorized',
-          statusCode: HttpStatus.BAD_REQUEST,
+          statusCode: HttpStatus.UNAUTHORIZED,
           message: ['Unable to create ticket'],
         });
       }
