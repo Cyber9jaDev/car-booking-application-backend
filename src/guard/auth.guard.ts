@@ -32,12 +32,14 @@ export class AuthGuard implements CanActivate {
       const request = this.getRequest(context);
       const accessToken = this.extractTokenFromCookie(request);
       const TokenPayload = await this.validateToken(accessToken);
-      const authenticateduser = await this.validateUser(TokenPayload);
+      const authenticatedUser = await this.validateUser(TokenPayload);
+
+      // console.log(authenticatedUser);
 
       // Attach user to request for use in controllers
       request.user = TokenPayload;
 
-      return this.hasRequiredRole(requiredRoles, authenticateduser.role);
+      return this.hasRequiredRole(requiredRoles, authenticatedUser.role);
     } catch (error) {
       this.handleError(error);
     }

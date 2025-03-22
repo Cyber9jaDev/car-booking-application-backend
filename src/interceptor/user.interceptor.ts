@@ -16,11 +16,13 @@ export class UserInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
 
-    console.log("Interceptor");
+    // console.log("Interceptor");
     try {
       const request = this.getRequest(context);
       const accessToken = this.extractTokenFromCookie(request);
       const decodedToken = this.decodeAndValidateToken(accessToken);
+
+      // console.log(decodedToken);
 
       request.user = decodedToken;
 
