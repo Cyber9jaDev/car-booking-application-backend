@@ -15,6 +15,8 @@ export class UserInterceptor implements NestInterceptor {
   constructor(private readonly jwtService: JwtService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+
+    console.log("Interceptor");
     try {
       const request = this.getRequest(context);
       const accessToken = this.extractTokenFromCookie(request);

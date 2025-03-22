@@ -5,7 +5,8 @@ export declare class UserController {
     constructor(userService: UserService);
     getAuthUser(request: Request): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
+        name: string;
+        email: string;
+        role: import(".prisma/client").$Enums.Role;
     } | null>;
 }

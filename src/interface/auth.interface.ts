@@ -2,7 +2,7 @@ import { Role } from "@prisma/client";
 
 interface BaseAuthResponse {
   message: string;
-  success: boolean;
+  error: boolean;
   statusCode: number;
   data?: {
     [key: string]: any;

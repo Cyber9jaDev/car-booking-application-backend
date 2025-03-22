@@ -32,7 +32,11 @@ export class AuthService {
   async signup(signupDto: SignupDto, @Res({ passthrough: true }) response: Response): Promise<SignupResponse> {
     
     if(!signupDto.hasAgreedTermsAndConditions){
-      throw new BadRequestException('Please agree to the terms and conditions')
+      throw new BadRequestException({
+        error: "Bad Request",
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['Please agree to the terms and conditions'],
+      });
     }
 
     try {
@@ -46,17 +50,17 @@ export class AuthService {
 
       if (existingUser) {
         throw new BadRequestException({
-          success: false,
+          error: "Bad Request",
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Email already exists',
+          message: ['Email already exists'],
         });
       }
 
       if (existingPhoneNumber) {
         throw new BadRequestException({
-          success: false,
+          error: "Bad Request",
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Phone number is in use by another user',
+          message: ['Phone number is in use by another user'],
         });
       }
 
@@ -81,7 +85,7 @@ export class AuthService {
       const cookie = this.createCookie(token);
       response.cookie(cookie.name, cookie.value, cookie.options);
 
-      return { message: 'User created successfully', success: true, statusCode: HttpStatus.CREATED}
+      return { message: 'User created successfully', error: false, statusCode: HttpStatus.CREATED}
       
     } catch (error) {
       throw error;
@@ -113,7 +117,7 @@ export class AuthService {
       const cookie = this.createCookie(token);
       console.log(cookie);
       response.cookie(cookie.name, cookie.value, cookie.options);
-      return { message: 'Login successful', success: true, statusCode: HttpStatus.OK };
+      return { message: 'Login successful', error: false, statusCode: HttpStatus.OK };
 
     } catch (error) {
       throw new Error(`Failed to login: ${error.message}`);

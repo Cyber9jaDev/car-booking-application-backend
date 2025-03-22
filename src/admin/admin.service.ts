@@ -9,43 +9,41 @@ export class AdminService {
   constructor(private readonly db: DatabaseService) {}
 
   async createTicket(createTicketDto: CreateTicketDto) {
-    // Arrival City must not be equal to departure city
+
     if(createTicketDto.departureCity === createTicketDto.arrivalCity){
       throw new BadRequestException({
-        success: false,
+        error: "Bad Request",
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Unable to create ticket',
+        message: ['Departure city cannot be the same as the arrival city'],
       });
     }
 
     try {
-      const availableSeats = this.createSeatNumbers(createTicketDto.vehicleType);
       const createTicket = this.db.ticket.create({
         data: {
           departureCity: createTicketDto.departureCity,
           arrivalCity: createTicketDto.arrivalCity,
           departureDate: createTicketDto.departureDate,
           ticketFee: createTicketDto.ticketFee,
-          availableSeats,
+          availableSeats: this.createSeatNumbers(createTicketDto.vehicleType),
           vehicleType: createTicketDto.vehicleType,
           createdBy: {
             connect: {
-              id: 'ewewewewewewee',
+              id: 'f10ad476-ef58-42e0-b48f-f9957b5bfeca',
             },
           },
         },
-        select: {},
       });
 
       if (!createTicket) {
         throw new BadRequestException({
-          success: false,
+          error: "Bad Request",
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Unable to create ticket',
+          message: ['Unable to create ticket'],
         });
       }
 
-      return createTicket
+      return createTicket;
     } catch (error) {
       throw error;
     }

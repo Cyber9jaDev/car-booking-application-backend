@@ -18,8 +18,8 @@ class SignupDto {
     email;
     password;
     phoneNumber;
-    role;
-    hasAgreedTermsAndConditions;
+    role = client_1.Role.PASSENGER;
+    hasAgreedTermsAndConditions = false;
 }
 exports.SignupDto = SignupDto;
 __decorate([
@@ -57,13 +57,20 @@ __decorate([
     __metadata("design:type", String)
 ], SignupDto.prototype, "phoneNumber", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: client_1.Role, example: client_1.Role.PASSENGER, required: true, enumName: client_1.Role.PASSENGER }),
+    (0, swagger_1.ApiProperty)({
+        enum: client_1.Role,
+        example: client_1.Role.PASSENGER,
+        required: true,
+        enumName: client_1.Role.PASSENGER,
+    }),
+    (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsEnum)(client_1.Role),
     __metadata("design:type", String)
 ], SignupDto.prototype, "role", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: Boolean, example: true, required: true, default: false }),
     (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Boolean)
 ], SignupDto.prototype, "hasAgreedTermsAndConditions", void 0);
 //# sourceMappingURL=signup.dto.js.map
