@@ -21,6 +21,7 @@ export class UserInterceptor implements NestInterceptor {
       const accessToken = this.extractTokenFromCookie(request);
       const decodedToken = this.decodeAndValidateToken(accessToken);
       
+      console.log(decodedToken);
       request.user = decodedToken;
 
       return next.handle();

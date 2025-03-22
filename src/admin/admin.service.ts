@@ -14,7 +14,7 @@ import { VehicleSeats } from 'src/interface/admin.interface';
 export class AdminService {
   constructor(private readonly db: DatabaseService) {}
 
-  async createTicket(createTicketDto: CreateTicketDto) {
+  async createTicket(createTicketDto: CreateTicketDto, userId: string) {
     if (createTicketDto.departureCity === createTicketDto.arrivalCity) {
       throw new BadRequestException({
         error: 'Bad Request',
@@ -34,7 +34,7 @@ export class AdminService {
           vehicleType: createTicketDto.vehicleType,
           createdBy: {
             connect: {
-              id: 'f10ad476-ef58-42e0-b48f-f9957b5bfeca',
+              id: userId,
             },
           },
         },

@@ -15,7 +15,9 @@ import { UserInterceptor } from 'src/interceptor/user.interceptor';
 import { Roles } from 'src/decorator/roles.decorator';
 import { Role } from '@prisma/client';
 import { Request } from 'express';
-
+// import { JwtPayload } from 'src/interface/user.interface';
+import { User } from 'src/decorator/user.decorator';
+import { JwtPayload } from 'jsonwebtoken';
 
 @Controller('admin')
 export class AdminController {
@@ -24,8 +26,11 @@ export class AdminController {
   @Roles(Role.ADMIN)
   @UseInterceptors(UserInterceptor)
   @Post('/create-ticket')
-  async createTicket(@Body() createTicketDto: CreateTicketDto, @Req() request: Request) {
-    console.log(request);
-    return this.adminService.createTicket(createTicketDto);
+  async createTicket(
+    @Body() createTicketDto: CreateTicketDto,
+    @Req() request: Request,
+    @User() user: JwtPayload
+  ) {
+    return this.adminService.createTicket(createTicketDto, user.userId);
   }
 }
