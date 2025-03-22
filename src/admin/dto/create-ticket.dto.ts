@@ -1,19 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { City, VehicleType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  ArrayNotEmpty,
+  IsArray,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsPositive,
+  Max,
   Min,
   ValidateIf,
 } from 'class-validator';
-import { City, Vehicle } from 'src/interface/admin.interface';
 
 export class CreateTicketDto {
   @ApiProperty({
     enum: City,
-    example: City.LAGOS,
+    example: City.aba,
     required: true,
     description: 'Departure city for the trip',
   })
@@ -26,7 +31,7 @@ export class CreateTicketDto {
 
   @ApiProperty({
     enum: City,
-    example: City.LAGOS,
+    example: City.agege,
     required: true,
     description: 'Arrival city for the trip',
   })
@@ -74,14 +79,37 @@ export class CreateTicketDto {
   ticketFee: number;
 
   @ApiProperty({
-    enum: Bus,
-    example: Bus.TOYOTA,
+    enum: VehicleType,
+    example: VehicleType.minibus,
     required: true,
     description: 'Type of bus for the trip',
   })
   @IsNotEmpty({ message: 'Bus type is required' })
-  @IsEnum(Bus, {
+  @IsEnum(VehicleType, {
     message: 'Invalid bus type. Please select from the available options.',
   })
-  vehicle: Vehicle;
+  vehicleType: VehicleType;
+
+  @ApiProperty({
+    type: 'array',
+    description: 'Number of available seats per vehicle type',
+    examples: [
+      { vehicleType: VehicleType.sienna, seats: 7 },
+      { vehicleType: VehicleType.minibus, seats: 12 },
+      { vehicleType: VehicleType.toyota, seats: 14 },
+    ],
+    minimum: 1,
+    maximum: 14,
+  })
+  @IsNotEmpty({ message: 'Available seats configuration is required' })
+  @IsArray()
+  @IsNumber({}, { each: true, message: 'Seat count must be a number' })
+  @ArrayNotEmpty({
+    message: 'At least one seat configuration must be provided',
+  })
+  @ArrayMinSize(1, { message: 'Vehicle must have at least 1 seat' })
+  @ArrayMaxSize(14, { message: 'Vehicle cannot have more than 14 seats' })
+  @Min(1, { each: true, message: 'Each vehicle must have at least 1 seat' })
+  @Max(14, { each: true, message: 'Each vehicle cannot exceed 14 seats' })
+  availableSeats: number[];
 }

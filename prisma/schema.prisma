@@ -23,10 +23,12 @@ model Ticket {
   id                  String            @id @default(uuid())
   departureCity       City
   arrivalCity         City
-  vehicle             Vehicle
   departureDate       String
-  createdAt           DateTime          @default(now())
+  vehicleType         VehicleType
+  ticketFee           Int       
+  availableSeats      Int[]                        
   updatedAt           DateTime
+  createdAt           DateTime          @default(now())
 }
 
 enum Role {
@@ -59,9 +61,11 @@ enum City {
   osun
 }
 
-enum Vehicle {
+enum VehicleType {
   toyota
   minibus
   sienna
 }
+
+
 

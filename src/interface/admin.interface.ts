@@ -1,30 +1,5 @@
-export enum City {
-  LAGOS = "lagos",
-  KANO = "kano",
-  ABUJA = "abuja",
-  IBADAN = "ibadan",
-  PORT_HARCOURT = "ph",
-  ABA = "aba",
-  ONITSHA = "onitsha",
-  BENIN = "benin",
-  SHAGAMU = "shagamu",
-  OGBOMOSO = "ogbomoso",
-  OWERRI = "owerri",
-  IKEJA = "ikeja",
-  OSOGBO = "osogbo",
-  AGEGE = "agege",
-  ILESA = "ilesa",
-  OSHODI = "oshodi",
-  SURULERE = "surulere",
-  IKOYI = "ikoyi",
-  WARRI = "warri",
-  AKURE = "akure",
-  EKITI = "ekiti",
-  OSUN = "osun",
-}
-
-export enum Vehicle {
-  TOYOTA = "toyota",
-  MINIBUS = "minibus",
-  SIENNA = "sienna",
+export enum VehicleSeats {
+  sienna = 7,
+  minibus = 12,
+  toyota = 14
 }

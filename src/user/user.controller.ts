@@ -16,6 +16,10 @@ export class UserController {
     return this.userService.getAuthUser(request);
   }
 
+  
+
+
+
 
   
 }
