@@ -1,10 +1,4 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  Injectable,
-  NestInterceptor,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, HttpStatus, Injectable, NestInterceptor, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
@@ -17,9 +11,11 @@ export class UserInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     try {
       const request = this.getRequest(context);
+      console.log(request);
       const accessToken = this.extractTokenFromCookie(request);
       const decodedToken = this.decodeAndValidateToken(accessToken);
 
+      console.log(decodedToken);
       request.user = decodedToken;
 
       return next.handle();
@@ -32,11 +28,19 @@ export class UserInterceptor implements NestInterceptor {
     try {
       const decodedToken = this.jwtService.decode(accessToken) as TokenPayload;
       if (!decodedToken || !decodedToken.userId) {
-        throw new UnauthorizedException('Invalid token payload');
+        throw new UnauthorizedException({
+          error: 'Unauthorized',
+          statusCode: HttpStatus.UNAUTHORIZED,
+          message: ['Invalid token payload'],
+        });
       }
       return decodedToken;
     } catch (error) {
-      throw new UnauthorizedException('Failed to decode token');
+      throw new UnauthorizedException({
+        error: 'Unauthorized',
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: ['Failed to decode token'],
+      });
     }
   }
 
@@ -48,13 +52,21 @@ export class UserInterceptor implements NestInterceptor {
     if (error instanceof UnauthorizedException) {
       throw error;
     }
-    throw new UnauthorizedException('Authentication failed');
+    throw new UnauthorizedException({
+      error: 'Unauthorized',
+      statusCode: HttpStatus.UNAUTHORIZED,
+      message: ['Authentication failed'],
+    });
   }
 
   private extractTokenFromCookie(request: Request) {
     const accessToken = request.cookies['access-token'];
     if (!accessToken) {
-      throw new UnauthorizedException('Authentication token is missing');
+      throw new UnauthorizedException({
+        error: 'Unauthorized',
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: ['Authentication token is missing'],
+      });
     }
     return accessToken;
   }

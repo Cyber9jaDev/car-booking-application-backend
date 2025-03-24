@@ -21,7 +21,7 @@ exports.AuthModule = AuthModule = __decorate([
             database_module_1.DatabaseModule,
             jwt_1.JwtModule.register({
                 secret: process.env.JWT_KEY,
-                signOptions: { expiresIn: '1d' },
+                signOptions: { expiresIn: '24h' },
             }),
         ],
         controllers: [auth_controller_1.AuthController],

@@ -1,10 +1,10 @@
-import { BadRequestException, HttpStatus, Injectable, Res } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException, Res, UnauthorizedException } from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { DatabaseService } from 'src/database/database.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { CookieOptions, Response } from 'express';
+import { Response } from 'express';
 import { LoginResponse, SignupResponse } from 'src/interface/auth.interface';
 
 @Injectable()
@@ -14,49 +14,52 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  private createCookie(token: string){
-    const cookieOptions: CookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    }
+  private readonly JWT_EXPIRATION = '24h';
 
-    return {
-      name: 'access-token',
-      value: token,
-      options: cookieOptions,
-    }
+  private handleError(error: Error): never {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException({
+        error: "Internal Server Error",
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: ['Internal Server Error'],
+      });
   }
 
   async signup(signupDto: SignupDto, @Res({ passthrough: true }) response: Response): Promise<SignupResponse> {
     
     if(!signupDto.hasAgreedTermsAndConditions){
-      throw new BadRequestException('Please agree to the terms and conditions')
+      throw new BadRequestException({
+        error: "Bad Request",
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['Please agree to the terms and conditions'],
+      });
     }
 
     try {
-      const existingUser = await this.database.user.findUnique({
-        where: { email: signupDto.email },
-      });
+      const existingUser = await this.database.user.findUnique({ where: { email: signupDto.email } });
+
+      if (existingUser) {
+        throw new BadRequestException({
+          error: "Bad Request",
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: ['Email already exists'],
+        });
+      }
 
       const existingPhoneNumber = await this.database.user.findUnique({
         where: { phoneNumber: signupDto.phoneNumber },
       });
 
-      if (existingUser) {
-        throw new BadRequestException({
-          success: false,
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Email already exists',
-        });
-      }
-
       if (existingPhoneNumber) {
         throw new BadRequestException({
-          success: false,
+          error: "Bad Request",
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Phone number is in use by another user',
+          message: ['Phone number is in use by another user'],
         });
       }
 
@@ -70,21 +73,33 @@ export class AuthService {
           role: signupDto.role,
           password: hashedPassword,
         },
-        select: {
-          id: true,
-          email: true,
-        },
+        select: { id: true, role: true },
       });
 
-      const payload = { userId: newUser.id, email: newUser.email };
-      const token = await this.jwtService.signAsync(payload);
-      const cookie = this.createCookie(token);
-      response.cookie(cookie.name, cookie.value, cookie.options);
+      if(!newUser){
+        throw new UnauthorizedException({
+          error: "Unauthorized",
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: ['Failed to create user'],
+        });
+      }
 
-      return { message: 'User created successfully', success: true, statusCode: HttpStatus.CREATED}
+      // JWT Payload - attach only userId to jwt payload
+      const payload = { userId: newUser.id };    
+      // const token = await this.jwtService.signAsync(payload);
+      const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
+      response.cookie("access-token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000, // 24h in milliseconds
+        path: "/",
+      });
+
+      return { success: true, statusCode: HttpStatus.CREATED, data: { userId: newUser.id, role: newUser.role }}
       
     } catch (error) {
-      throw error;
+      this.handleError(error)
     }
   }
 
@@ -96,27 +111,38 @@ export class AuthService {
       });
 
       if (!user) {
-        throw new BadRequestException('Invalid credentials');
+        throw new UnauthorizedException({
+          error: "Unauthorized",
+          statusCode: HttpStatus.UNAUTHORIZED,
+          message: ['Invalid credentials'],
+        });
       }
 
-      const isValidPassword = await bcrypt.compare(
-        loginDto.password,
-        user.password,
-      );
+      const isValidPassword = await bcrypt.compare( loginDto.password,user.password );
 
       if (!isValidPassword) {
-        throw new BadRequestException('Invalid credentials');
+        throw new UnauthorizedException({
+          error: "Unauthorized",
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: ['Invalid credentials'],
+        });
       }
 
-      const payload = { userId: user.id, email: user.email, role: user.role };
-      const token = await this.jwtService.signAsync(payload);
-      const cookie = this.createCookie(token);
-      console.log(cookie);
-      response.cookie(cookie.name, cookie.value, cookie.options);
-      return { message: 'Login successful', success: true, statusCode: HttpStatus.OK };
+      // JWT Payload
+      const payload = { userId: user.id };
+      const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
+      response.cookie("access-token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000, // 24h in milliseconds
+        path: "/",
+      });
+
+      return { success: true, statusCode: HttpStatus.OK, data: { userId: user.id, role: user.role } };
 
     } catch (error) {
-      throw new Error(`Failed to login: ${error.message}`);
+      this.handleError(error)
     }
   }
 }

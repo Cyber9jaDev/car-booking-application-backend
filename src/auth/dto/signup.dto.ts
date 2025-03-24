@@ -42,13 +42,18 @@ export class SignupDto {
   })
   phoneNumber: string;
 
-  @ApiProperty({ enum: Role, example: Role.PASSENGER, required: true, enumName: Role.PASSENGER })
+  @ApiProperty({
+    enum: Role,
+    example: Role.PASSENGER,
+    required: true,
+    enumName: Role.PASSENGER,
+  })
+  @IsNotEmpty()
   @IsEnum(Role)
-  role: Role;
-
+  role: Role = Role.PASSENGER;
 
   @ApiProperty({ type: Boolean, example: true, required: true, default: false })
   @IsBoolean()
-  hasAgreedTermsAndConditions: boolean;
-  
+  @IsNotEmpty()
+  hasAgreedTermsAndConditions: boolean = false;
 }

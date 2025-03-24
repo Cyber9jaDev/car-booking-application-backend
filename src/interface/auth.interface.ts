@@ -1,11 +1,12 @@
 import { Role } from "@prisma/client";
 
 interface BaseAuthResponse {
-  message: string;
+  // message: string;
   success: boolean;
   statusCode: number;
-  data?: {
-    [key: string]: any;
+  data: {
+    userId: string;
+    role: Role
   }
 }
 
@@ -19,9 +20,3 @@ export interface TokenPayload {
 
 export interface SignupResponse extends BaseAuthResponse {}
 export interface LoginResponse extends BaseAuthResponse {}
-
-export interface BaseErrorResponse{
-  message: string;
-  statusCode: number;
-  success: boolean;
-}

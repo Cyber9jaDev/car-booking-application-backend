@@ -26,42 +26,43 @@ let AuthService = class AuthService {
         this.database = database;
         this.jwtService = jwtService;
     }
-    createCookie(token) {
-        const cookieOptions = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: "strict",
-            maxAge: 24 * 60 * 60 * 1000,
-        };
-        return {
-            name: 'access-token',
-            value: token,
-            options: cookieOptions,
-        };
+    JWT_EXPIRATION = '24h';
+    handleError(error) {
+        if (error instanceof common_1.UnauthorizedException ||
+            error instanceof common_1.BadRequestException) {
+            throw error;
+        }
+        throw new common_1.InternalServerErrorException({
+            error: "Internal Server Error",
+            statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+            message: ['Internal Server Error'],
+        });
     }
     async signup(signupDto, response) {
         if (!signupDto.hasAgreedTermsAndConditions) {
-            throw new common_1.BadRequestException('Please agree to the terms and conditions');
+            throw new common_1.BadRequestException({
+                error: "Bad Request",
+                statusCode: common_1.HttpStatus.BAD_REQUEST,
+                message: ['Please agree to the terms and conditions'],
+            });
         }
         try {
-            const existingUser = await this.database.user.findUnique({
-                where: { email: signupDto.email },
-            });
+            const existingUser = await this.database.user.findUnique({ where: { email: signupDto.email } });
+            if (existingUser) {
+                throw new common_1.BadRequestException({
+                    error: "Bad Request",
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: ['Email already exists'],
+                });
+            }
             const existingPhoneNumber = await this.database.user.findUnique({
                 where: { phoneNumber: signupDto.phoneNumber },
             });
-            if (existingUser) {
-                throw new common_1.BadRequestException({
-                    success: false,
-                    statusCode: common_1.HttpStatus.BAD_REQUEST,
-                    message: 'Email already exists',
-                });
-            }
             if (existingPhoneNumber) {
                 throw new common_1.BadRequestException({
-                    success: false,
+                    error: "Bad Request",
                     statusCode: common_1.HttpStatus.BAD_REQUEST,
-                    message: 'Phone number is in use by another user',
+                    message: ['Phone number is in use by another user'],
                 });
             }
             const hashedPassword = await bcrypt.hash(signupDto.password, 10);
@@ -73,19 +74,28 @@ let AuthService = class AuthService {
                     role: signupDto.role,
                     password: hashedPassword,
                 },
-                select: {
-                    id: true,
-                    email: true,
-                },
+                select: { id: true, role: true },
             });
-            const payload = { userId: newUser.id, email: newUser.email };
-            const token = await this.jwtService.signAsync(payload);
-            const cookie = this.createCookie(token);
-            response.cookie(cookie.name, cookie.value, cookie.options);
-            return { message: 'User created successfully', success: true, statusCode: common_1.HttpStatus.CREATED };
+            if (!newUser) {
+                throw new common_1.UnauthorizedException({
+                    error: "Unauthorized",
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: ['Failed to create user'],
+                });
+            }
+            const payload = { userId: newUser.id };
+            const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
+            response.cookie("access-token", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000,
+                path: "/",
+            });
+            return { success: true, statusCode: common_1.HttpStatus.CREATED, data: { userId: newUser.id, role: newUser.role } };
         }
         catch (error) {
-            throw error;
+            this.handleError(error);
         }
     }
     async login(loginDto, response) {
@@ -95,21 +105,33 @@ let AuthService = class AuthService {
                 select: { id: true, password: true, email: true, role: true },
             });
             if (!user) {
-                throw new common_1.BadRequestException('Invalid credentials');
+                throw new common_1.UnauthorizedException({
+                    error: "Unauthorized",
+                    statusCode: common_1.HttpStatus.UNAUTHORIZED,
+                    message: ['Invalid credentials'],
+                });
             }
             const isValidPassword = await bcrypt.compare(loginDto.password, user.password);
             if (!isValidPassword) {
-                throw new common_1.BadRequestException('Invalid credentials');
+                throw new common_1.UnauthorizedException({
+                    error: "Unauthorized",
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: ['Invalid credentials'],
+                });
             }
-            const payload = { userId: user.id, email: user.email, role: user.role };
-            const token = await this.jwtService.signAsync(payload);
-            const cookie = this.createCookie(token);
-            console.log(cookie);
-            response.cookie(cookie.name, cookie.value, cookie.options);
-            return { message: 'Login successful', success: true, statusCode: common_1.HttpStatus.OK };
+            const payload = { userId: user.id };
+            const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
+            response.cookie("access-token", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000,
+                path: "/",
+            });
+            return { success: true, statusCode: common_1.HttpStatus.OK, data: { userId: user.id, role: user.role } };
         }
         catch (error) {
-            throw new Error(`Failed to login: ${error.message}`);
+            this.handleError(error);
         }
     }
 };

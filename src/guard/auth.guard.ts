@@ -2,7 +2,9 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  HttpStatus,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -32,12 +34,9 @@ export class AuthGuard implements CanActivate {
       const request = this.getRequest(context);
       const accessToken = this.extractTokenFromCookie(request);
       const TokenPayload = await this.validateToken(accessToken);
-      const authenticateduser = await this.validateUser(TokenPayload);
+      const authenticatedUser = await this.validateUser(TokenPayload);
 
-      // Attach user to request for use in controllers
-      request.user = TokenPayload;
-
-      return this.hasRequiredRole(requiredRoles, authenticateduser.role);
+      return this.hasRequiredRole(requiredRoles, authenticatedUser.role);
     } catch (error) {
       this.handleError(error);
     }
@@ -46,9 +45,11 @@ export class AuthGuard implements CanActivate {
   private hasRequiredRole(requiredRoles: Role[], userRole: Role): boolean {
     const hasPermission = requiredRoles.includes(userRole);
     if (!hasPermission) {
-      throw new ForbiddenException(
-        'You do not have permission to access this resource',
-      );
+      throw new ForbiddenException({
+        error: 'Forbidden',
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['You do not have permission to access this resource'],
+      });
     }
     return true;
   }
@@ -60,7 +61,11 @@ export class AuthGuard implements CanActivate {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User does not exist');
+      throw new NotFoundException({
+        error: 'Not Found',
+        statusCode: HttpStatus.NOT_FOUND,
+        message: ['User does not exist'],
+      });
     }
 
     return user;
@@ -72,7 +77,11 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_KEY,
       });
     } catch (error) {
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException({
+        error: 'Unauthorized',
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: ['Invalid or expired token'],
+      });
     }
   }
 
@@ -94,7 +103,11 @@ export class AuthGuard implements CanActivate {
   private extractTokenFromCookie(request: Request) {
     const accessToken = request.cookies['access-token'];
     if (!accessToken) {
-      throw new UnauthorizedException('Authentication token is missing');
+      throw new UnauthorizedException({
+        error: 'Unauthorized',
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: ['Authentication token is missing'],
+      });
     }
     return accessToken;
   }
@@ -106,6 +119,10 @@ export class AuthGuard implements CanActivate {
     ) {
       throw error;
     }
-    throw new UnauthorizedException('Authentication failed');
+    throw new UnauthorizedException({
+      error: 'Unauthorized',
+      statusCode: HttpStatus.UNAUTHORIZED,
+      message: ['Authentication failed'],
+    });
   }
 }
