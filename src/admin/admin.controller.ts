@@ -6,7 +6,6 @@ import { Roles } from 'src/decorator/roles.decorator';
 import { Role } from '@prisma/client';
 import { User } from 'src/decorator/user.decorator';
 import { JwtPayload } from 'jsonwebtoken';
-import { Request } from 'express';
 
 @Controller('admin')
 export class AdminController {
@@ -16,12 +15,10 @@ export class AdminController {
   @UseInterceptors(UserInterceptor)
   @Post('/create-ticket')
   async createTicket(
-    @Req() request: Request,
     @Body() createTicketDto: CreateTicketDto,
     @User() user: JwtPayload
   ) {
 
-    console.log(request);
     // We can also use the request object to get the user
     return this.adminService.createTicket(createTicketDto, user.userId);
   }

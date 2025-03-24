@@ -1,4 +1,10 @@
-import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { VehicleType } from '@prisma/client';
@@ -26,11 +32,7 @@ export class AdminService {
           ticketFee: createTicketDto.ticketFee,
           availableSeats: this.createSeatNumbers(createTicketDto.vehicleType),
           vehicleType: createTicketDto.vehicleType,
-          createdBy: {
-            connect: {
-              id: userId,
-            },
-          },
+          createdBy: { connect: { id: userId } },
         },
       });
 
@@ -41,10 +43,10 @@ export class AdminService {
           message: ['Unable to create ticket'],
         });
       }
-      
+
       return {
         message: 'Ticket Created Successfully',
-        error: false,
+        success: true,
         statusCode: HttpStatus.CREATED,
       };
     } catch (error) {
