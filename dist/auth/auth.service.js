@@ -47,9 +47,7 @@ let AuthService = class AuthService {
             });
         }
         try {
-            const existingUser = await this.database.user.findUnique({
-                where: { email: signupDto.email },
-            });
+            const existingUser = await this.database.user.findUnique({ where: { email: signupDto.email } });
             if (existingUser) {
                 throw new common_1.BadRequestException({
                     error: "Bad Request",
@@ -86,10 +84,10 @@ let AuthService = class AuthService {
                 });
             }
             const payload = { userId: newUser.id };
-            const token = await this.jwtService.signAsync(payload);
+            const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
             response.cookie("access-token", token, {
                 httpOnly: true,
-                secure: false,
+                secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',
                 maxAge: 24 * 60 * 60 * 1000,
                 path: "/",
@@ -122,12 +120,12 @@ let AuthService = class AuthService {
                 });
             }
             const payload = { userId: user.id };
-            const token = await this.jwtService.signAsync(payload);
+            const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
             response.cookie("access-token", token, {
                 httpOnly: true,
-                secure: false,
+                secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',
-                expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                maxAge: 24 * 60 * 60 * 1000,
                 path: "/",
             });
             return { success: true, statusCode: common_1.HttpStatus.OK, data: { userId: user.id, role: user.role } };

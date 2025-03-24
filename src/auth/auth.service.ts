@@ -13,7 +13,7 @@ export class AuthService {
     private readonly database: DatabaseService,
     private readonly jwtService: JwtService,
   ) {}
-  
+
   private readonly JWT_EXPIRATION = '24h';
 
   private handleError(error: Error): never {
@@ -41,9 +41,7 @@ export class AuthService {
     }
 
     try {
-      const existingUser = await this.database.user.findUnique({
-        where: { email: signupDto.email },
-      });
+      const existingUser = await this.database.user.findUnique({ where: { email: signupDto.email } });
 
       if (existingUser) {
         throw new BadRequestException({
@@ -88,12 +86,13 @@ export class AuthService {
 
       // JWT Payload - attach only userId to jwt payload
       const payload = { userId: newUser.id };    
-      const token = await this.jwtService.signAsync(payload);
+      // const token = await this.jwtService.signAsync(payload);
+      const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
       response.cookie("access-token", token, {
         httpOnly: true,
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        maxAge: 24 * 60 * 60 * 1000, // 24h in milliseconds
         path: "/",
       });
 
@@ -131,13 +130,12 @@ export class AuthService {
 
       // JWT Payload
       const payload = { userId: user.id };
-      const token = await this.jwtService.signAsync(payload);
+      const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
       response.cookie("access-token", token, {
         httpOnly: true,
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day from now
-        // maxAge: 24 * 60 * 60 * 1000, // 1 day
+        maxAge: 24 * 60 * 60 * 1000, // 24h in milliseconds
         path: "/",
       });
 
