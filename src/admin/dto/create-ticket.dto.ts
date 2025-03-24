@@ -90,26 +90,26 @@ export class CreateTicketDto {
   })
   vehicleType: VehicleType;
 
-  @ApiProperty({
-    type: 'array',
-    description: 'Number of available seats per vehicle type',
-    examples: [
-      { vehicleType: VehicleType.SIENNA, seats: 7 },
-      { vehicleType: VehicleType.MINIBUS, seats: 12 },
-      { vehicleType: VehicleType.TOYOTA, seats: 14 },
-    ],
-    minimum: 1,
-    maximum: 14,
-  })
-  @IsNotEmpty({ message: 'Available seats configuration is required' })
-  @IsArray()
-  @IsNumber({}, { each: true, message: 'Seat count must be a number' })
-  @ArrayNotEmpty({
-    message: 'At least one seat configuration must be provided',
-  })
-  @ArrayMinSize(1, { message: 'Vehicle must have at least 1 seat' })
-  @ArrayMaxSize(14, { message: 'Vehicle cannot have more than 14 seats' })
-  @Min(1, { each: true, message: 'Each vehicle must have at least 1 seat' })
-  @Max(14, { each: true, message: 'Each vehicle cannot exceed 14 seats' })
-  availableSeats: number[];
+  // @ApiProperty({
+  //   type: 'array',
+  //   description: 'Number of available seats per vehicle type',
+  //   examples: [
+  //     { vehicleType: VehicleType.SIENNA, seats: 7 },
+  //     { vehicleType: VehicleType.MINIBUS, seats: 12 },
+  //     { vehicleType: VehicleType.TOYOTA, seats: 14 },
+  //   ],
+  //   minimum: 1,
+  //   maximum: 14,
+  // })
+  // @IsNotEmpty({ message: 'Available seats configuration is required' })
+  // @IsArray()
+  // @IsNumber({}, { each: true, message: 'Seat count must be a number' })
+  // @ArrayNotEmpty({
+  //   message: 'At least one seat configuration must be provided',
+  // })
+  // @ArrayMinSize(1, { message: 'Vehicle must have at least 1 seat' })
+  // @ArrayMaxSize(14, { message: 'Vehicle cannot have more than 14 seats' })
+  // @Min(1, { each: true, message: 'Each vehicle must have at least 1 seat' })
+  // @Max(14, { each: true, message: 'Each vehicle cannot exceed 14 seats' })
+  // availableSeats: number[];
 }

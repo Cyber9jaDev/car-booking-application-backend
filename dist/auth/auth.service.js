@@ -26,19 +26,7 @@ let AuthService = class AuthService {
         this.database = database;
         this.jwtService = jwtService;
     }
-    createCookie(token) {
-        const cookieOptions = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: "strict",
-            maxAge: 24 * 60 * 60 * 1000,
-        };
-        return {
-            name: 'access-token',
-            value: token,
-            options: cookieOptions,
-        };
-    }
+    JWT_EXPIRATION = '24h';
     handleError(error) {
         if (error instanceof common_1.UnauthorizedException ||
             error instanceof common_1.BadRequestException) {
@@ -88,23 +76,25 @@ let AuthService = class AuthService {
                     role: signupDto.role,
                     password: hashedPassword,
                 },
-                select: {
-                    id: true,
-                    email: true,
-                },
+                select: { id: true, role: true },
             });
             if (!newUser) {
                 throw new common_1.UnauthorizedException({
                     error: "Unauthorized",
                     statusCode: common_1.HttpStatus.BAD_REQUEST,
-                    message: ['Failed to create ticket'],
+                    message: ['Failed to create user'],
                 });
             }
             const payload = { userId: newUser.id };
             const token = await this.jwtService.signAsync(payload);
-            const cookie = this.createCookie(token);
-            response.cookie(cookie.name, cookie.value, cookie.options);
-            return { message: 'User created successfully', error: false, statusCode: common_1.HttpStatus.CREATED };
+            response.cookie("access-token", token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000,
+                path: "/",
+            });
+            return { success: true, statusCode: common_1.HttpStatus.CREATED, data: { userId: newUser.id, role: newUser.role } };
         }
         catch (error) {
             this.handleError(error);
@@ -117,20 +107,33 @@ let AuthService = class AuthService {
                 select: { id: true, password: true, email: true, role: true },
             });
             if (!user) {
-                throw new common_1.BadRequestException('Invalid credentials');
+                throw new common_1.UnauthorizedException({
+                    error: "Unauthorized",
+                    statusCode: common_1.HttpStatus.UNAUTHORIZED,
+                    message: ['Invalid credentials'],
+                });
             }
             const isValidPassword = await bcrypt.compare(loginDto.password, user.password);
             if (!isValidPassword) {
-                throw new common_1.BadRequestException('Invalid credentials');
+                throw new common_1.UnauthorizedException({
+                    error: "Unauthorized",
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: ['Invalid credentials'],
+                });
             }
             const payload = { userId: user.id };
             const token = await this.jwtService.signAsync(payload);
-            const cookie = this.createCookie(token);
-            response.cookie(cookie.name, cookie.value, cookie.options);
-            return { message: 'Login successful', error: false, statusCode: common_1.HttpStatus.OK };
+            response.cookie("access-token", token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                path: "/",
+            });
+            return { success: true, statusCode: common_1.HttpStatus.OK, data: { userId: user.id, role: user.role } };
         }
         catch (error) {
-            throw new Error(`Failed to login: ${error.message}`);
+            this.handleError(error);
         }
     }
 };

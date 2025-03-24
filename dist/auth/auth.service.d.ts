@@ -8,7 +8,7 @@ export declare class AuthService {
     private readonly database;
     private readonly jwtService;
     constructor(database: DatabaseService, jwtService: JwtService);
-    private createCookie;
+    private readonly JWT_EXPIRATION;
     private handleError;
     signup(signupDto: SignupDto, response: Response): Promise<SignupResponse>;
     login(loginDto: LoginDto, response: Response): Promise<LoginResponse>;

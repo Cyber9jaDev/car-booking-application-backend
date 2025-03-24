@@ -7,9 +7,20 @@ const common_1 = require("@nestjs/common");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        origin: [
+            'http://127.0.0.1:3000/',
+            'http://localhost:3000/',
+            'http://127.0.0.1:3000',
+            'http://localhost:3000',
+            'https://127.0.0.1:3000/',
+            'https://localhost:3000/',
+            'https://127.0.0.1:3000',
+            'https://localhost:3000',
+        ],
+        methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
         credentials: true,
     });
+    app.use(cookieParser());
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         transform: true,
@@ -18,7 +29,6 @@ async function bootstrap() {
         },
     }));
     app.setGlobalPrefix('api/v1');
-    app.use(cookieParser());
     await app.listen(5000);
 }
 bootstrap();
