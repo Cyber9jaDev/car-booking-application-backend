@@ -83,7 +83,7 @@ let AuthService = class AuthService {
                     message: ['Failed to create user'],
                 });
             }
-            const payload = { userId: newUser.id };
+            const payload = { userId: newUser.id, role: newUser.role };
             const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
             response.cookie("access-token", token, {
                 httpOnly: true,
@@ -119,7 +119,7 @@ let AuthService = class AuthService {
                     message: ['Invalid credentials'],
                 });
             }
-            const payload = { userId: user.id };
+            const payload = { userId: user.id, role: user.role };
             const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
             response.cookie("access-token", token, {
                 httpOnly: true,

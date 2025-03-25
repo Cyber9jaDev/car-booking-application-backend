@@ -84,9 +84,8 @@ export class AuthService {
         });
       }
 
-      // JWT Payload - attach only userId to jwt payload
-      const payload = { userId: newUser.id };    
-      // const token = await this.jwtService.signAsync(payload);
+      // Create JSON payload
+      const payload = { userId: newUser.id, role: newUser.role };    
       const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
       response.cookie("access-token", token, {
         httpOnly: true,
@@ -129,7 +128,7 @@ export class AuthService {
       }
 
       // JWT Payload
-      const payload = { userId: user.id };
+      const payload = { userId: user.id, role: user.role };
       const token = await this.jwtService.signAsync(payload, { expiresIn: this.JWT_EXPIRATION });
       response.cookie("access-token", token, {
         httpOnly: true,
