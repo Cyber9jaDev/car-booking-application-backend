@@ -24,7 +24,7 @@ export class AdminService {
     }
 
     try {
-      const createTicket = this.db.ticket.create({
+      const createTicket = await this.db.ticket.create({
         data: {
           departureCity: createTicketDto.departureCity,
           arrivalCity: createTicketDto.arrivalCity,
@@ -36,6 +36,8 @@ export class AdminService {
         },
       });
 
+      console.log(1);
+
       if (!createTicket) {
         throw new UnauthorizedException({
           error: 'Unauthorized',
@@ -43,6 +45,7 @@ export class AdminService {
           message: ['Unable to create ticket'],
         });
       }
+
 
       return {
         message: 'Ticket Created Successfully',

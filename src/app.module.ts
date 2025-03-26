@@ -11,9 +11,10 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guard/auth.guard';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { AdminModule } from './admin/admin.module';
+import { BookingModule } from './booking/booking.module';
 
 @Module({
-  imports: [DatabaseModule, UserModule, PaymentModule, AuthModule, JwtModule, AdminModule],
+  imports: [DatabaseModule, UserModule, PaymentModule, AuthModule, JwtModule, AdminModule, BookingModule],
   controllers: [AppController, AuthController],
   providers: [
     AppService,

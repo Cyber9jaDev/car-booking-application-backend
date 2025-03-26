@@ -11,11 +11,9 @@ export class UserInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     try {
       const request = this.getRequest(context);
-      console.log(request);
       const accessToken = this.extractTokenFromCookie(request);
       const decodedToken = this.decodeAndValidateToken(accessToken);
 
-      console.log(decodedToken);
       request.user = decodedToken;
 
       return next.handle();

@@ -19,12 +19,13 @@ const core_1 = require("@nestjs/core");
 const auth_guard_1 = require("./guard/auth.guard");
 const jwt_1 = require("@nestjs/jwt");
 const admin_module_1 = require("./admin/admin.module");
+const booking_module_1 = require("./booking/booking.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule, user_module_1.UserModule, payment_module_1.PaymentModule, auth_module_1.AuthModule, jwt_1.JwtModule, admin_module_1.AdminModule],
+        imports: [database_module_1.DatabaseModule, user_module_1.UserModule, payment_module_1.PaymentModule, auth_module_1.AuthModule, jwt_1.JwtModule, admin_module_1.AdminModule, booking_module_1.BookingModule],
         controllers: [app_controller_1.AppController, auth_controller_1.AuthController],
         providers: [
             app_service_1.AppService,
