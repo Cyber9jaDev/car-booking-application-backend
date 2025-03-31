@@ -18,6 +18,14 @@ export class BookingController {
     @Query("limit") limit?: number
   ): Promise<TicketResponse[]> {
 
+    if(departureCity === arrivalCity){
+      throw new BadRequestException({
+        error: 'Bad Request',
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['Departure and arrival cities cannot be the same'],
+      });
+    }
+
     if (departureCity && !this.IsValidCity(departureCity)) {
       throw new BadRequestException({
         error: 'Bad Request',
@@ -42,20 +50,15 @@ export class BookingController {
       });
     }
 
-    const date = departureDate ? {
-      
-    } : undefined
-
     const filter = {
       ...(departureCity && { departureCity }),
       ...(arrivalCity && { arrivalCity }),
       ...(departureDate && { departureDate })
     }
 
-    const take = limit ? Math.max(1, limit) : 2;
+    const take = limit ? Math.max(1, limit) : 10;
     const skip = page ? Math.max(0, page - 1) * take : 0;
     
-
     return await this.bookingService.findAllTickets(filter, take, skip);
   }
 
