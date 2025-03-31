@@ -5,7 +5,7 @@ import { DatabaseService } from 'src/database/database.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-import { LoginResponse, SignupResponse } from 'src/interface/auth.interface';
+import { LoginResponse, SignupResponse } from 'src/types/auth.interface';
 
 @Injectable()
 export class AuthService {

@@ -1,14 +1,8 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { VehicleType } from '@prisma/client';
-import { VehicleSeats } from 'src/interface/admin.interface';
+import { VehicleSeats } from 'src/types/admin.interface';
 
 @Injectable()
 export class AdminService {
@@ -36,8 +30,6 @@ export class AdminService {
         },
       });
 
-      console.log(1);
-
       if (!createTicket) {
         throw new UnauthorizedException({
           error: 'Unauthorized',
@@ -45,7 +37,6 @@ export class AdminService {
           message: ['Unable to create ticket'],
         });
       }
-
 
       return {
         message: 'Ticket Created Successfully',

@@ -19,7 +19,6 @@ export class AdminController {
     @User() user: JwtPayload
   ) {
 
-    console.log(createTicketDto);
     // We can also use the request object to get the user
     return this.adminService.createTicket(createTicketDto, user.userId);
   }

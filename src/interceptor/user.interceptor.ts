@@ -2,7 +2,7 @@ import { CallHandler, ExecutionContext, HttpStatus, Injectable, NestInterceptor,
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
-import { TokenPayload } from 'src/interface/auth.interface';
+import { TokenPayload } from 'src/types/auth.interface';
 
 @Injectable()
 export class UserInterceptor implements NestInterceptor {
